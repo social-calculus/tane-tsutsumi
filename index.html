@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>種つつみ</title>
+<meta name="description" content="四隅を折る薬包のような種の包み。絵と QR を差し替えて、A4 で印刷できます。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --ink: #2c2620; --line: #d9cfbb; --bg: #f6f0e2; --paper: #fffdf6; --accent: #7a2e1c; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Noto Serif JP', 'Noto Serif CJK JP', 'Yu Mincho', serif; }
+  main { display: grid; grid-template-columns: minmax(280px, 360px) 1fr; gap: 20px; padding: 20px; max-width: 1280px; margin: auto; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  p { line-height: 1.7; margin: 0 0 10px; font-size: 14px; }
+  .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+  label { display: block; font-size: 13px; font-weight: 700; margin: 12px 0 4px; }
+  input[type=text], select { width: 100%; padding: 7px 8px; border: 1px solid var(--line); border-radius: 5px; font: inherit; font-size: 14px; background: #fff; }
+  input[type=file] { width: 100%; font-size: 12px; }
+  .slot { display: grid; grid-template-columns: 48px 1fr; gap: 8px; align-items: center; margin-top: 8px; }
+  .slot img { width: 48px; height: 48px; object-fit: cover; border-radius: 4px; border: 1px solid var(--line); }
+  button { margin-top: 14px; width: 100%; padding: 11px; border: 0; border-radius: 6px; background: var(--accent); color: #fff; font: inherit; font-weight: 700; font-size: 15px; cursor: pointer; }
+  .previews { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+  .previews figure { margin: 0; }
+  .previews figcaption { font-size: 13px; margin-bottom: 6px; font-weight: 700; }
+  .previews svg { width: 100%; height: auto; display: block; background: #fff; box-shadow: 0 1px 6px rgba(60,40,20,.2); }
+  small { font-size: 12px; color: #6a5f50; }
+  a { color: var(--accent); }
+  #print { display: none; }
+  @media (max-width: 760px) { main { grid-template-columns: 1fr; padding: 16px; } }
+  @page { size: A4 portrait; margin: 0; }
+  @media print {
+    body { background: #fff; }
+    main { display: none; }
+    #print { display: block; }
+    #print svg { display: block; width: 210mm; height: 297mm; page-break-after: always; break-after: page; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <section class="panel">
+    <h1>種つつみ</h1>
+    <p>四隅を折る、薬包のような包みです。絵と QR を差し替えて、A4 で印刷できます。誰でも無料で使えます（<a href="https://creativecommons.org/licenses/by/4.0/deed.ja">CC BY 4.0</a>）。</p>
+    <label for="design">デザイン</label>
+    <select id="design"></select>
+    <label for="qr">中央の QR の行き先</label>
+    <input id="qr" type="text">
+    <label for="qrnote">QR の下のことば</label>
+    <input id="qrnote" type="text">
+    <label for="title">外側の題</label>
+    <input id="title" type="text">
+    <div id="slots"></div>
+    <button id="go" type="button">印刷する（PDF 保存もここから）</button>
+    <p style="margin-top:10px"><small>両面・長辺とじ、倍率 100%。点線の 4 辺を切り（約 19.8cm 四方）、裏の絵が外側になるよう四隅を中心へ折ります。</small></p>
+  </section>
+  <section class="previews" id="previews"></section>
+</main>
+<div id="print"></div>
+<script src="vendor/qrcode.js"></script>
+<script src="designs/designs.js"></script>
+<script src="tane.js"></script>
+<script>
+  const params = new URLSearchParams(location.search);
+  const designs = structuredClone(window.TANE_DESIGNS);
+  const base = structuredClone(window.TANE_DEFAULTS);
+  const $ = (id) => document.getElementById(id);
+  const SLOTS = [['front', '外側の絵'], ['top', '上の角'], ['right', '右の角'], ['bottom', '下の角'], ['left', '左の角']];
+
+  function current() {
+    return designs.find((d) => d.id === $('design').value) ?? designs[0];
+  }
+  function render() {
+    const d = current();
+    $('previews').innerHTML = `
+      <figure><figcaption>内側（開いたとき）</figcaption>${TANE.page('inside', d, base, 'p1')}</figure>
+      <figure><figcaption>外側（紙の裏面）</figcaption>${TANE.page('outside', d, base, 'p2')}</figure>`;
+    $('slots').innerHTML = '';
+    for (const [key, name] of SLOTS) {
+      const src = key === 'front' ? d.front : d[key].img;
+      const row = document.createElement('div');
+      row.className = 'slot';
+      row.innerHTML = `<img alt="" src="${src}"><div><label style="margin:0">${name}</label><input type="file" accept="image/*"></div>`;
+      row.querySelector('input').addEventListener('change', (e) => {
+        const f = e.target.files[0];
+        if (!f) return;
+        const url = URL.createObjectURL(f);
+        if (key === 'front') d.front = url;
+        else d[key].img = url;
+        render();
+      });
+      $('slots').appendChild(row);
+    }
+  }
+  function printPages(list) {
+    $('print').innerHTML = list.map((d, i) => TANE.page('inside', d, base, `a${i}`) + TANE.page('outside', d, base, `b${i}`)).join('');
+  }
+
+  for (const d of designs) $('design').add(new Option(d.name, d.id));
+  $('qr').value = base.qrUrl;
+  $('qrnote').value = base.qrNote;
+  $('title').value = base.title;
+  $('design').addEventListener('change', render);
+  for (const [id, key] of [['qr', 'qrUrl'], ['qrnote', 'qrNote'], ['title', 'title']]) {
+    $(id).addEventListener('input', () => {
+      base[key] = $(id).value;
+      render();
+    });
+  }
+  $('go').addEventListener('click', () => {
+    printPages([current()]);
+    window.print();
+  });
+  render();
+  // ?all=1 はすべてのデザインを印刷面に並べる（PDF を作るとき）
+  if (params.get('all')) printPages(designs);
+  window.TANE_READY = true;
+</script>
+</body>
+</html>

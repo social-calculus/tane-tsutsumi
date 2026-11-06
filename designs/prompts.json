@@ -1,0 +1,22 @@
+{
+  "style": "Style: Japanese mingei woodblock print, flat areas of color with a limited palette of about five colors, bold simple shapes, visible soft paper grain, warm and friendly, consistent with a hand-printed folk craft. It must print well on an office laser printer. Absolutely no text, no letters, no kanji, no numbers, no logos, no signature, no seal stamp, no border, no frame. No people. Fill the whole square edge to edge; keep the main subject in the center with generous space around it.",
+  "art": {
+    "kani/front": "one big male snow crab seen from above on a dark indigo winter sea of Japan, gentle snow falling, tiny lights of small fishing boats on the far horizon",
+    "kani/top": "one male snow crab with long legs, seen from above, on a pale cream background with a few simple waves",
+    "kani/right": "one small female snow crab holding bright orange roe under her body, on a soft blue-grey background",
+    "kani/bottom": "a handful of small pale orange deep-sea shrimp arranged in a loose circle, on a cream background",
+    "kani/left": "one plump deep-sea eelpout fish with a big soft head and a friendly expression, on a dark teal background",
+
+    "umi/front": "a white rocky sea arch with a single pine tree on its very top, standing in clear turquoise sea, small rocky islets around it, a big summer sky",
+    "umi/top": "close view of a rocky sea arch with one windswept pine tree on top, turquoise water through the arch",
+    "umi/right": "one small white sightseeing boat among jagged rocky islets on a calm blue sea",
+    "umi/bottom": "two empty bright orange sea kayaks floating on clear shallow blue water near a rocky cliff, seen from above",
+    "umi/left": "long fronds of brown-green akamoku seaweed swaying underwater, with small bubbles, in deep blue-green water",
+
+    "eki/front": "a small old wooden rural Japanese train station with a red tiled roof and white wooden posts, a giant elongated orange pumpkin beside the entrance, green mountains behind, autumn afternoon. No signs, no railway company marks",
+    "eki/top": "the entrance of a small wooden rural train station with a red tiled roof and white wooden posts, a small red mailbox beside it. No signs, no railway company marks",
+    "eki/right": "one giant elongated orange pumpkin sitting on a wooden pallet, with green vines and big leaves around it",
+    "eki/bottom": "a wooden ladle and a folded white hand towel resting on the edge of a steaming wooden hot spring bath, soft steam",
+    "eki/left": "several flat dried flounder fish hanging in a row on a simple wooden drying rack by the sea, blue sky"
+  }
+}
