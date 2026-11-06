@@ -1,6 +1,6 @@
 // 既定デザインの絵を AI で作る。作り直すときだけ使う。
 //   node tools/gen_art.mjs            足りない絵だけ作る
-//   node tools/gen_art.mjs kani/top   指定した絵を作り直す
+//   node tools/gen_art.mjs kani/scene   指定した絵を作り直す
 // プロンプトは designs/prompts.json。出力は designs/art/<design>_<slot>.png
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -23,7 +23,7 @@ async function generate(key, subject) {
       const res = await fetch(API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }], expect_images: true, priority: 'bulk', slot_timeout: 300 }),
+        body: JSON.stringify({ model, temporary: true, gem: false, thinking: true, messages: [{ role: 'user', content: prompt }], expect_images: true, priority: 'bulk', slot_timeout: 300 }),
         signal: AbortSignal.timeout(420_000),
       }).catch((e) => ({ ok: false, status: 0, text: async () => String(e) }));
       if (!res.ok) {
@@ -32,7 +32,7 @@ async function generate(key, subject) {
         continue;
       }
       const data = await res.json();
-      const b64 = data.yuzu_images?.find((i) => i.kind === 'generated')?.b64 ?? data.yuzu_images?.[0]?.b64;
+      const b64 = data.yuzu_images?.find((i) => i.kind === 'generated')?.b64;
       if (b64) {
         writeFileSync(join(OUT, `${key.replace('/', '_')}.png`), Buffer.from(b64, 'base64'));
         console.log(`  ${key}: OK (${model})`);

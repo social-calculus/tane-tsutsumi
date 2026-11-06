@@ -1,50 +1,51 @@
-# 種つつみ（tane-tsutsumi）
+# 岩美のたね
 
-一枚の紙を折って差し込むだけで閉じる、薬包のような種の包みです。絵と QR を差し替えて、A4 で印刷できます。誰でも無料で使えます。
+**一枚の風景画を、小さな薬包のように折る種の包み。** 192 mm の正方形から、のり・シール・切り込みなしで 64 mm 角の「たとう包み」を作ります。最後の翼を最初の翼の下に差し込む、風車式です。
 
-既定のデザインは、鳥取県岩美町の駅前で育ったかぼちゃの種を配るために作りました。
+**配布データは試し刷り用として完成。実物の保持力試験は未実施です。** 11/8 に実際の用紙と種の袋で確認し、合格後、11/11 に各柄20枚・計60枚を印刷する想定です。11/14 の配布用。
 
-- **絵を差し替えて使う：** https://social-calculus.github.io/tane-tsutsumi/ （ブラウザだけで動きます。入れた絵はどこにも送られません）
-- **そのまま印刷する：** [`dist/tane-tsutsumi_iwami_a4.pdf`](dist/tane-tsutsumi_iwami_a4.pdf)（3 デザイン・両面 6 ページ）
+![3つの柄](dist/preview.jpg)
 
-![折り方](dist/fold_steps.jpg)
+- [印刷用 PDF：3柄・6ページ](dist/tane-tsutsumi_iwami_a4.pdf)（A4 3枚分）
+- 個別 PDF：[海から、ひと粒](dist/umi-a4.pdf) / [港の実り](dist/kani-a4.pdf) / [湯けむりの帰り道](dist/eki-a4.pdf)
+- [折り方の図と試し刷り確認欄：2ページ](dist/fold-guide.pdf) / [原寸の練習用紙：1ページ](dist/practice.pdf)
+- [ブラウザで絵と QR を差し替える](https://social-calculus.github.io/tane-tsutsumi/) / [編集用一式 ZIP](dist/source.zip)
 
-## 作り方
+## 印刷・包み方
 
-1. 両面、**長辺とじ**、倍率 100% で A4 に印刷します。ふつうのコピー用紙が折りやすいです。
-2. 点線の 4 辺を切ります（約 19.8cm 四方）。下の部分は捨てます。
-3. QR のある面を上に、角を上にして置き、種の袋を真ん中に置きます。
-4. 中央の四角の線で、下の角、右の角、左の角の順に折ります。
-5. 上の角を折り、先を左右の重なりの下へ差し込みます。約 11cm 四方になります。
+**A4、カラー両面、長辺とじ、実際のサイズ＝100%。** 「用紙に合わせる」、フチなし拡大、製本、2ページ集約は OFF。普通の白いコピー用紙 70〜90 g/m² を推奨します。
 
-角がそれぞれ中心を越えて重なるので、シールなしで閉じ、中身もこぼれません。
+1. 各柄の2ページが表裏の1枚です。初めは各柄1枚。下の **50 mm** の線を定規で測ります。
+2. A 面のトンボを基準に、192 × 192 mm に裁断。外周9 mmの余白と下の説明部分を切り落とします。絵は裁ち位置の外へ3 mm伸びています。印刷可能範囲が紙端から6 mm以内の機械を想定しています。
+3. 折り方 PDF に沿って折り筋を作ります。**中央64 mm角は折らない**ため、中央の QR は折り線をまたぎません。
+4. チャックを閉じた袋を入れ、左 → 下 → 右 → 上の順に閉じ、最後の翼を最初の翼の下に差し込みます。袋は **外寸45 × 50 mm以下**。3粒は重ねず平らに。紙は外包み、種の漏れ止めはチャック袋です。
 
-## 差し替える
+60枚の本刷りは、**6ページ PDF を20部・長辺とじで両面印刷＝60枚（120面）**。個別2ページ PDF を各20部でも同じです。折り方・練習用紙は本刷りに混ぜません。
 
-ページの画面で、デザインごとに外側の絵と内側の大きな絵を選び、中央の QR の行き先と文字を変えられます。「印刷する」から PDF に保存できます。
+## 確認したこと／実物で確認すること
 
-手元で作るなら、`designs/designs.js` を書き換えて `index.html` を開きます。
+- **実行済みのデジタル検査**：[preflight.json](dist/preflight.json)。A4・ページ数・PDFフォント埋め込み、300/150 dpi の印刷面画像から2つの QR を全柄復号、静寂域4セル、中央面の無折線、翼の平面上の重なり、差し替え動作。
+- **折り方の根拠**：既存の伝統的な風車式。写真付き工程は [I Try DIY「Origami Square Envelope」](https://itrydiy.me/2016/02/origami-square-envelope/)。その写真を転載せず、折り図を独自に描きました。平面の面積計算だけを、立体折りの検証とは呼びません。
+- **11/8 の実物確認**：表裏ずれ2 mm以内、紙が無理なく畳める、実袋を入れて10回開閉・10回軽く振る・逆さ30秒で翼が抜けず袋が出ない、スマホで両QRが読めること。紙厚・摩擦・種の厚みはコンピュータでは保証していません。合格するまで60枚の本刷りには進めません。
 
-- 絵は正方形です。内側の絵は紙を角が上になるように置いたときの上下で描き、四隅は切れるので、大事なものは中央寄りに置きます。真ん中は QR の四角で隠れます。
-- 開いたときの小さな札（`labels`）は位置も文字も変えられます。
-- 折り上がりの版面の計算は `tane.js`、折り工程の確かめは `tools/build.py` にあります。
+## 差し替え・再生成
+
+ZIP を展開し `index.html` を開くだけ。各柄 **画像1枚**、中央QR・小QRのURL、題、表示欄を変更できます。編集内容は画像込みの JSON に保存・再読込でき、画像を埋め込んだ SVG も書き出せます。入力は外部へ送信しません。
+
+`dist/*-inside.svg` と `*-outside.svg` は、画像埋め込み・mm実寸・文字とQRが別要素の編集用源稿です。Inkscape等で開けます。QRを変えるときは図形を手描きせず、ブラウザ画面で再生成してください。フォントは Noto Serif CJK JP / Noto Sans CJK JP 推奨。配布 PDF はフォント埋め込み済みです。
+
+開発者向け（既に動いている Chromium/Brave の CDP を指定。ビルドは生図 API を呼びません）：
+
+```sh
+uv sync
+node tools/guide.mjs
+uv run python tools/build.py --cdp http://127.0.0.1:9222
+```
+
+必要環境は Python 3.11以降、Node.js、CDP対応ブラウザ、日本語フォントです。画像を新しく生成するときだけ `IMAGE_API_URL=... node tools/gen_art.mjs umi/scene` を実行します。対応は `yuzu_images` を返す OpenAI互換画像生成プロキシ。原画・来歴は [ASSETS.md](ASSETS.md)。
 
 ## ライセンス
 
-- デザイン（絵・版面・文章）：[CC BY 4.0](LICENSE)
-- コード：[MIT](LICENSE-CODE)
-- 表示の例：「種つつみ（SOCIAL CALCULUS）を改変」と、このページへのリンク
+デザイン・文章・独自の折り図：**[CC BY 4.0](LICENSE)**。コード：**[MIT](LICENSE-CODE)**。帰属例：「岩美のたね / SOCIAL CALCULUS、CC BY 4.0、改変あり」＋本リポジトリへのリンク。
 
-既定の絵は AI で生成しました。実際の景色そのものではなく、岩美をもとにしたイメージです。国によっては著作権が生じない場合があり、その範囲では CC BY の条件もかかりません。
-
-このデザインは岩美町の公式なものではありません。町章やキャラクターは含みません。別の用途で使うときは、中央の QR と裏の表示欄を自分のものに差し替えてください。
-
-種を配るときは、登録品種でないことを確かめ、「食べられません」など必要な表示を入れてください。
-
----
-
-## English
-
-A seed packet folded from one sheet of A4, like an old paper medicine wrap. The flaps overlap and tuck in, so it closes without glue or stickers. Swap the pictures and the QR code in your browser and print. Free to use under [CC BY 4.0](LICENSE); the code is [MIT](LICENSE-CODE). The default design comes from pumpkins grown in front of Iwami Station, Tottori, Japan.
-
-Print double-sided (flip on long edge) at 100%, trim the four dashed lines, put the seeds in the middle, fold the bottom, right and left corners along the center square, then fold the top corner and tuck its tip under the overlap. The default artwork is AI-generated and is an impression, not a record of real places. This project is not an official work of Iwami Town.
+AI生成の創作風景で、景色の位置関係を示す地図ではありません。AIのみの出力に著作権が成立しない地域・範囲では、CC BYの条件もその範囲にはかかりません。町章・いわみん・JRロゴ・『Free!』のキャラクターは使用していません。岩美町の公式制作物ではありません。

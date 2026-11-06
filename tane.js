@@ -1,162 +1,109 @@
-// 包みの版面を SVG で組む。すべて mm 単位（A4 縦）。
-//
-// 切り方：点線の 4 辺を切って 198mm 四方にする。絵は紙の端まで刷るので、切った後に白い縁が残らない。
-// 折り方（紙を角が上になるように置く。中央の四角の 4 辺が折り線）：
-//   1. 内側の面を上に、種の袋を真ん中へ  2. 下の角を折る  3. 右、左の順に角を折る
-//   4. 上の角を折り、先を左右の重なりの下へ差し込む
-//   角がそれぞれ中心を越えて重なるので、シールなしで閉じ、中身もこぼれない。折り上がりは 110mm 四方。
-// 表面（inside）＝開くと出てくる大きな絵。裏面（outside）＝閉じたときに見える面。
-// 裏面の 4 枚の角は、折ったときに 1 枚の絵に戻るよう、折り返しを逆算して配置する。
-// 両面印刷は「長辺とじ」が前提（裏面は左右が反転する）。
-
-(function () {
-  const OFF = 6; // 紙の左右と上から切り落とす幅
-  const S = 198; // 切り上がりの一辺
-  const R = S / Math.SQRT2; // 紙の中心から角までの長さ
-  const W = 110; // 折り上がりの一辺（＝中央の四角）
-  const H = W / 2;
-  const BLEED = 3; // 切りずれに備えて、絵を切り線の外へ伸ばす幅
-  const C = Math.SQRT1_2;
+/* MIT — millimetres throughout. Traditional pinwheel/tato envelope.
+ * 192 mm square -> 64 mm packet. There is NO crease through the central square.
+ * This is a print layout, not a paper-thickness/retention simulation.
+ */
+(function (root) {
+  'use strict';
+  const S = 192, A = S / 3, OFF = 9, BLEED = 3;
   const NS = 'http://www.w3.org/2000/svg';
-  const reach = R - W + BLEED; // 角の先が中心を越える長さ
-
-  // (u,v)：角を上にして置いた紙の座標（原点は紙の中心） → 紙の表面の座標
-  const toSheet = (u, v) => [S / 2 + (u + v) * C, S / 2 + (v - u) * C];
-  // 裏面は長辺とじで左右が反転する
-  const toBack = ([x, y]) => [S - x, y];
-  const backPoint = (u, v) => toBack(toSheet(u, v));
-
-  // 閉じた姿の点 (U,V) に重なる、折る前の紙の位置（折り線で鏡映）。box は閉じた姿での範囲
-  const FLAPS = {
-    bottom: { box: [-H, -reach, W, H + reach], paper: (U, V) => [U, 2 * H - V] },
-    right: { box: [-reach, -H, H + reach, W], paper: (U, V) => [2 * H - U, V] },
-    left: { box: [-H, -H, H + reach, W], paper: (U, V) => [-2 * H - U, V] },
-    top: { box: [-H, -H, W, H + reach], paper: (U, V) => [U, -2 * H - V] },
-  };
-
-  const matrixOf = (fn) => {
-    const [ox, oy] = fn(0, 0);
-    const [ax, ay] = fn(1, 0);
-    const [bx, by] = fn(0, 1);
-    return `matrix(${ax - ox} ${ay - oy} ${bx - ox} ${by - oy} ${ox} ${oy})`;
-  };
-
-  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-  const SERIF = `font-family="'Noto Serif CJK JP','Noto Serif JP','Yu Mincho','Hiragino Mincho ProN',serif"`;
-  const PAPER = '#f8f2e4';
-
-  function qrPath(text, x, y, size, color = '#222') {
-    const qr = window.qrcode(0, 'M');
-    qr.addData(text);
-    qr.make();
-    const n = qr.getModuleCount();
-    const m = size / n;
+  const INK = '#263b3d', PAPER = '#fffaf0';
+  const FONT = `font-family="'Noto Serif CJK JP','Noto Serif JP','Yu Mincho',serif"`;
+  const SANS = `font-family="'Noto Sans CJK JP','Noto Sans JP','Yu Gothic',sans-serif"`;
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
+  function text(x,y,s,size=3,extra='') {
+    return `<text x="${x}" y="${y}" font-size="${size}" fill="${INK}" ${extra.includes('font-family=')?'':FONT} ${extra}>${esc(s)}</text>`;
+  }
+  // size INCLUDES the mandatory four-module quiet zone on every edge.
+  function qr(textValue, x, y, size) {
+    const q = root.qrcode(0, 'M'); q.addData(textValue, 'Byte'); q.make();
+    const n = q.getModuleCount(), m = size / (n + 8);
     let d = '';
-    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) d += `M${x + c * m} ${y + r * m}h${m}v${m}h${-m}z`;
-    return `<rect x="${x - m * 2}" y="${y - m * 2}" width="${size + m * 4}" height="${size + m * 4}" fill="#fff"/><path d="${d}" fill="${color}"/>`;
+    for(let r=0;r<n;r++) for(let c=0;c<n;c++) if(q.isDark(r,c))
+      d += `M${x+(c+4)*m},${y+(r+4)*m}h${m}v${m}h${-m}z`;
+    return `<g data-qr="${esc(textValue)}" data-modules="${n}" data-module-mm="${m}"><rect x="${x}" y="${y}" width="${size}" height="${size}" fill="white"/><path d="${d}" fill="#000"/></g>`;
   }
-
-  // 閉じた姿の絵（外側）。座標は (U,V)、原点は包みの中心。
-  // 題箋と印は右の帯に置く：どの順に折っても、この帯は右の角 1 枚だけで合わせ目がない
-  function coverArt(design, base) {
-    const chars = [...base.title];
-    const tx = H - 11;
-    const top = -H + 8;
-    const height = chars.length * 6.1 + 7;
-    const title = chars.map((c, i) => `<text x="${tx}" y="${top + 7.6 + i * 6.1}" text-anchor="middle" font-size="5.2" font-weight="700" fill="#2c2620" ${SERIF}>${esc(c)}</text>`).join('');
-    const sealY = top + height + 4;
-    return `<image href="${esc(design.cover)}" x="${-H - 2}" y="${-H - 2}" width="${W + 4}" height="${W + 4}" preserveAspectRatio="xMidYMid slice"/>
-      <rect x="${tx - 5.2}" y="${top}" width="10.4" height="${height}" fill="${PAPER}" stroke="#2c2620" stroke-width="0.2"/>
-      ${title}
-      <rect x="${tx - 4.2}" y="${sealY}" width="8.4" height="11" rx="1" fill="#c0392b"/>
-      <text x="${tx}" y="${sealY + 4.7}" text-anchor="middle" font-size="3.5" font-weight="700" fill="#fff" ${SERIF}>岩</text>
-      <text x="${tx}" y="${sealY + 8.8}" text-anchor="middle" font-size="3.5" font-weight="700" fill="#fff" ${SERIF}>美</text>`;
-  }
-
-  // 裏の表示欄（閉じた姿の背面）。座標は (X,Y)、原点は包みの中心
-  function backPanel(base) {
-    const x0 = -H + 9;
-    const rows = base.label
-      .map(([k, v], i) => {
-        const y = -H + 16 + i * 6.6;
-        return `<text x="${x0}" y="${y}" font-size="2.9" font-weight="700" fill="#333" ${SERIF}>${esc(k)}</text>
-        <text x="${x0 + 17}" y="${y}" font-size="2.9" fill="#333" ${SERIF}>${esc(v)}</text>
-        <line x1="${x0}" x2="${H - 9}" y1="${y + 2}" y2="${y + 2}" stroke="#999" stroke-width="0.12"/>`;
-      })
-      .join('');
-    const qy = H - 31;
-    return `<rect x="${-H}" y="${-H}" width="${W}" height="${W}" fill="${PAPER}"/>
-      ${rows}
-      ${qrPath(base.licenseQr, x0, qy, 17)}
-      <text x="${x0 + 21}" y="${qy + 4}" font-size="2.6" fill="#333" ${SERIF}>${esc(base.licenseText)}</text>
-      <text x="${x0 + 21}" y="${qy + 8.4}" font-size="2.6" fill="#333" ${SERIF}>絵や QR は自由に差し替えられます。</text>
-      <text x="${x0 + 21}" y="${qy + 12.8}" font-size="2.1" fill="#555" ${SERIF}>github.com/social-calculus/tane-tsutsumi</text>`;
-  }
-
-  // 裏面（閉じたときに見える面）
-  function outside(design, base, uid) {
-    let defs = `<g id="cover-${uid}">${coverArt(design, base)}</g>`;
-    // 折ると隠れる部分は、紙の色の代わりにデザインの色で埋めておく
-    let body = `<rect x="-${OFF}" y="-${OFF}" width="210" height="${S + OFF + BLEED}" fill="${esc(design.color)}"/>`;
-    for (const [name, f] of Object.entries(FLAPS)) {
-      const [x, y, w, h] = f.box;
-      defs += `<clipPath id="clip-${uid}-${name}"><rect x="${x}" y="${y}" width="${w}" height="${h}"/></clipPath>`;
-      const m = matrixOf((U, V) => backPoint(...f.paper(U, V)));
-      body += `<g transform="${m}"><g clip-path="url(#clip-${uid}-${name})"><use href="#cover-${uid}"/></g></g>`;
+  function cropMarks() {
+    const e = OFF+S; let d='';
+    for(const x of [OFF,e]) for(const y of [OFF,e]) {
+      const dx=x===OFF?-1:1, dy=y===OFF?-1:1;
+      d+=`M${x+dx*1.2},${y}h${dx*2.5}M${x},${y+dy*1.2}v${dy*2.5}`;
     }
-    // 背面：裏返すと左右が入れ替わる
-    body += `<g transform="${matrixOf((X, Y) => backPoint(-X, Y))}">${backPanel(base)}</g>`;
-    return { defs, body };
+    return `<path d="${d}" fill="none" stroke="#333" stroke-width=".18"/>`;
   }
-
-  // 開いたときの小さな札。at は紙の座標（u,v）で札の中心
-  function labelTag(item) {
-    const lines = item.line.split('\n');
-    const width = Math.max([...item.title].length * 3.8, ...lines.map((l) => [...l].length * 2.75)) + 6;
-    const height = 8.6 + lines.length * 3.5;
-    const [u, v] = item.at;
-    return `<rect x="${u - width / 2}" y="${v - height / 2}" width="${width}" height="${height}" fill="${PAPER}" fill-opacity="0.93" stroke="#2c2620" stroke-width="0.15"/>
-      <text x="${u}" y="${v - height / 2 + 5.1}" text-anchor="middle" font-size="3.5" font-weight="700" fill="#2c2620" ${SERIF}>${esc(item.title)}</text>
-      ${lines.map((l, i) => `<text x="${u}" y="${v - height / 2 + 9.1 + i * 3.5}" text-anchor="middle" font-size="2.6" fill="#333" ${SERIF}>${esc(l)}</text>`).join('')}`;
-  }
-
-  // 表面（開いたときに見える面）
-  function inside(design, base) {
-    const q = 36;
-    return `<rect x="-${OFF}" y="-${OFF}" width="210" height="${S + OFF + BLEED}" fill="${esc(design.color)}"/>
-      <g transform="translate(${S / 2} ${S / 2}) rotate(-45)">
-      <image href="${esc(design.inside)}" x="${-R - 4}" y="${-R - 4}" width="${2 * R + 8}" height="${2 * R + 8}" preserveAspectRatio="xMidYMid slice"/>
-      ${design.labels.map(labelTag).join('')}
-      <rect x="${-H}" y="${-H}" width="${W}" height="${W}" fill="${PAPER}" stroke="#2c2620" stroke-width="0.25" stroke-dasharray="1.4 1.2"/>
-      <text x="0" y="${-q / 2 - 7.5}" text-anchor="middle" font-size="5" font-weight="700" fill="#2c2620" ${SERIF}>${esc(base.qrTitle)}</text>
-      ${qrPath(base.qrUrl, -q / 2, -q / 2, q)}
-      <text x="0" y="${q / 2 + 8}" text-anchor="middle" font-size="3.6" fill="#333" ${SERIF}>${esc(base.qrNote)}</text>
+  // All PRECREASES used by the referenced traditional fold. Some are only aids;
+  // do not assign a single mountain/valley sense to the entire preparation grid.
+  function creasePattern(x=0,y=0,scale=1) {
+    return `<g transform="translate(${x} ${y}) scale(${scale})" fill="none" stroke-linecap="round">
+      <rect width="192" height="192" stroke="${INK}" stroke-width=".55"/>
+      <path d="M64 0V192M128 0V192M0 64H192M0 128H192" stroke="#247f86" stroke-width=".7" stroke-dasharray="3 2"/>
+      <path d="M0 0L64 64M128 128L192 192M192 0L128 64M64 128L0 192" stroke="#bc6841" stroke-width=".7" stroke-dasharray="3 2"/>
+      <path d="M0 128L128 0M64 0L192 128M0 64L128 192M64 192L192 64" stroke="#726b97" stroke-width=".7" stroke-dasharray="3 2"/>
+      <rect x="65" y="65" width="62" height="62" fill="#e8f2e8" stroke="none"/>
+      ${text(96,92,'中央は折らない',8,'text-anchor="middle"')}${text(96,106,'64 × 64 mm',7,'text-anchor="middle"')}
     </g>`;
   }
-
-  // 切り線と、切り落とす部分の手順（切ったら捨てる）。ここは用紙座標
-  function cutMarks(side) {
-    if (side !== 'inside') return '';
-    const line = 'stroke="#fff" stroke-width="0.25" stroke-dasharray="2 2"';
-    const dark = 'stroke="#777" stroke-width="0.2" stroke-dasharray="2 2"';
-    const b = OFF + S;
-    return `<path d="M${OFF} 0V${b}M${b} 0V${b}M0 ${OFF}H210M0 ${b}H210" fill="none" ${line}/>
-      <path d="M${OFF} ${b + 3}V${b + 8}M${b} ${b + 3}V${b + 8}" fill="none" ${dark}/>
-      <text x="105" y="${b + 8}" text-anchor="middle" font-size="3.2" fill="#555" ${SERIF}>点線の 4 辺を切る（約 19.8cm 四方。下の部分は捨てる）</text>
-      <text x="105" y="${b + 16}" text-anchor="middle" font-size="3.2" fill="#555" ${SERIF}>① この面を上に、角を上にして置き、種の袋を真ん中へ　② 下の角を四角の線で折る</text>
-      <text x="105" y="${b + 22}" text-anchor="middle" font-size="3.2" fill="#555" ${SERIF}>③ 右、左の順に角を折る　④ 上の角を折り、先を左右の重なりの下へ差し込む</text>
-      <text x="105" y="${b + 30}" text-anchor="middle" font-size="3.2" fill="#555" ${SERIF}>両面印刷は「長辺とじ」、倍率 100%</text>`;
+  function label(base) {
+    const lines = base.label;
+    let rows = '';
+    lines.forEach(([key,value],i)=> {
+      const y=83.2+i*4.1;
+      rows+=text(79,y,key,2.35, SANS)+text(91,y,value,2.35,SANS);
+      if(i<lines.length-1) rows+=`<path d="M78 ${y+1.1}H132" stroke="#a8aaa1" stroke-width=".12"/>`;
+    });
+    return `<rect x="76" y="76" width="58" height="58" rx=".7" fill="${PAPER}"/>
+      ${rows}${qr(base.licenseQr,78,110.8,20.5)}
+      ${text(101,115,'CC BY 4.0',2.65,SANS)}
+      ${text(101,119.2,'SOCIAL CALCULUS',2.1,SANS)}
+      ${text(101,123.2,'絵・型紙を公開',2.35,SANS)}
+      ${text(101,127.2,'改変・再配布できます',2.2,SANS)}`;
   }
-
-  function page(side, design, base, uid) {
-    const made = side === 'outside' ? outside(design, base, uid) : { defs: '', body: inside(design, base) };
-    return `<svg xmlns="${NS}" class="sheet-svg" viewBox="0 0 210 297" width="210mm" height="297mm">
-      <defs>${made.defs}<clipPath id="page-${uid}"><rect x="0" y="0" width="210" height="${OFF + S + BLEED}"/></clipPath></defs>
-      <rect x="0" y="0" width="210" height="297" fill="#fff"/>
-      <g clip-path="url(#page-${uid})"><g transform="translate(${OFF} ${OFF})">${made.body}</g></g>
-      ${cutMarks(side)}
+  function page(side,design,base,uid='sheet',guides=false) {
+    const art = `<image href="${esc(design.art)}" x="6" y="6" width="198" height="198" preserveAspectRatio="xMidYMid slice"/>`;
+    let body = art;
+    if(side==='inside') {
+      body+=`<rect x="84" y="80" width="42" height="50" rx=".6" fill="${PAPER}"/>
+        ${text(105,86.2,base.qrTitle,3.1,'text-anchor="middle"')}
+        ${qr(base.qrUrl,90,90,30)}
+        ${text(105,125.7,base.qrNote,2.4,'text-anchor="middle" '+SANS)}
+        <rect x="17" y="17" width="11" height="48" fill="${PAPER}" fill-opacity=".94"/>
+        ${[...base.title].map((c,i)=>text(22.5,24+i*6.8,c,5.5,'text-anchor="middle"')).join('')}
+        ${text(32,24,design.subtitle,3.2,'paint-order="stroke" stroke="#fffaf0" stroke-width=".8" stroke-linejoin="round"')}
+        ${text(32,29.5,'鳥取県 岩美町',2.5,'paint-order="stroke" stroke="#fffaf0" stroke-width=".7" stroke-linejoin="round"')}`;
+    } else body+=label(base);
+    if(guides) body+=`<g opacity=".65">${creasePattern(OFF,OFF)}</g>`;
+    const footer=side==='inside'
+      ? `${text(14,216,'岩美のたね  /  '+design.name,5)}
+         ${text(14,225,'A 面：開くと一枚の絵。QR のある面を上にして折ります。',3.2)}
+         ${text(14,232,'A4・両面・長辺とじ・実際のサイズ（100%）・フチなし指定は不要。',3.2)}
+         ${text(14,239,'四隅のトンボで 192 × 192 mm に裁断。64 mm ずつの三等分が基本です。',3.2)}
+         ${text(14,249,'折り方は別紙「折り方と試し刷り」。中央の QR には折り目を付けません。',3.2)}
+         ${text(14,256,'種は閉じたチャック袋へ。袋の外寸は 45 × 50 mm 以下、種は重ねず平らに。',3.2)}
+         ${text(14,266,'この下の余白は切り落とします。',2.8)}
+         <path d="M145 268H195M145 266V270M195 266V270" stroke="${INK}" stroke-width=".25"/>
+         ${text(170,275,'この線は 50 mm',2.7,'text-anchor="middle"')}`
+      : `${text(14,217,'B 面：外側  /  '+design.name,4)}
+         ${text(14,226,'折り上がりは 64 × 64 mm。最後の翼を最初の翼の下へ差し込んで閉じます。',3.1)}
+         ${text(14,233,'のり・シール・切り込みは不要。中の種の漏れ止めはチャック袋が担います。',3.1)}
+         ${text(14,242,'イラストは AI 生成。実景を組み合わせた創作風景です（地図ではありません）。',2.8)}
+         ${text(14,250,'デザイン CC BY 4.0  /  コード MIT',2.8)}
+         ${text(14,257,'github.com/social-calculus/tane-tsutsumi',2.8)}`;
+    return `<svg xmlns="${NS}" viewBox="0 0 210 297" width="210mm" height="297mm" role="img" aria-label="${esc(design.name+' '+side)}">
+      <defs><clipPath id="${uid}"><rect x="6" y="6" width="198" height="198"/></clipPath></defs>
+      <rect width="210" height="297" fill="white"/><g clip-path="url(#${uid})">${body}</g>${cropMarks()}${footer}
     </svg>`;
   }
-
-  window.TANE = { OFF, S, R, W, FLAPS, page, coverArt, qrPath };
-})();
+  // A schematic of the already-collapsed pinwheel, NOT a rendered photograph.
+  // Its four triangular wings each reflect into a half-square. Final stacking
+  // is cyclic: bottom over left, right over bottom, top over right, left over top.
+  function pinwheel(step=0,x=0,y=0,scale=1) {
+    const a=64, palette=['#e5bd6b','#8cbbc0','#c67d5a','#91a876'];
+    const open=[ [[64,64],[64,128],[0,128]], [[64,128],[128,128],[128,192]], [[128,64],[128,128],[192,64]], [[64,64],[128,64],[64,0]] ];
+    const closed=[ [[64,64],[64,128],[128,128]], [[64,128],[128,128],[128,64]], [[128,64],[128,128],[64,64]], [[64,64],[128,64],[64,128]] ];
+    const poly=(p,c)=>`<polygon points="${p.map(q=>q.join(',')).join(' ')}" fill="${c}" stroke="${INK}" stroke-width=".7"/>`;
+    let out=`<rect x="64" y="64" width="64" height="64" fill="${PAPER}" stroke="${INK}" stroke-width=".7"/>`;
+    for(let i=0;i<4;i++) out+=poly(i<step?closed[i]:open[i],palette[i]);
+    if(step===4) out+=poly([[64,64],[64,128],[96,96]],palette[0]);
+    return `<g transform="translate(${x} ${y}) scale(${scale})">${out}</g>`;
+  }
+  root.TANE = {S,A,OFF,BLEED,esc,text,qr,page,creasePattern,pinwheel};
+})(typeof window==='undefined'?globalThis:window);

@@ -1,0 +1,207 @@
+{
+  "geometry": {
+    "square_mm": 192,
+    "finished_mm": [
+      64,
+      64
+    ],
+    "bag_max_external_mm": [
+      45,
+      50
+    ],
+    "qr_crease_clearance_checked": true,
+    "cyclic_projected_overlap_mm2": 1024,
+    "physical_retention_test": "NOT PERFORMED — 11/8 proof required",
+    "construction_reference": "https://itrydiy.me/2016/02/origami-square-envelope"
+  },
+  "pdfs": [
+    {
+      "file": "tane-tsutsumi_iwami_a4.pdf",
+      "pages": 6,
+      "a4": true,
+      "embedded_fonts": true,
+      "font_representation": "Type3 embedded glyphs"
+    },
+    {
+      "file": "umi-a4.pdf",
+      "pages": 2,
+      "a4": true,
+      "embedded_fonts": true,
+      "font_representation": "Type3 embedded glyphs"
+    },
+    {
+      "file": "kani-a4.pdf",
+      "pages": 2,
+      "a4": true,
+      "embedded_fonts": true,
+      "font_representation": "Type3 embedded glyphs"
+    },
+    {
+      "file": "eki-a4.pdf",
+      "pages": 2,
+      "a4": true,
+      "embedded_fonts": true,
+      "font_representation": "Type3 embedded glyphs"
+    },
+    {
+      "file": "fold-guide.pdf",
+      "pages": 2,
+      "a4": true,
+      "embedded_fonts": true,
+      "font_representation": "Type3 embedded glyphs"
+    },
+    {
+      "file": "practice.pdf",
+      "pages": 1,
+      "a4": true,
+      "embedded_fonts": true,
+      "font_representation": "Type3 embedded glyphs"
+    }
+  ],
+  "qr": [
+    {
+      "file": "umi_inside.png",
+      "tests": [
+        {
+          "dpi": 300,
+          "decoded": "https://x.com/iwami_kankou"
+        },
+        {
+          "dpi": 150,
+          "decoded": "https://x.com/iwami_kankou"
+        }
+      ]
+    },
+    {
+      "file": "umi_outside.png",
+      "tests": [
+        {
+          "dpi": 300,
+          "decoded": "https://github.com/social-calculus/tane-tsutsumi"
+        },
+        {
+          "dpi": 150,
+          "decoded": "https://github.com/social-calculus/tane-tsutsumi"
+        }
+      ]
+    },
+    {
+      "file": "kani_inside.png",
+      "tests": [
+        {
+          "dpi": 300,
+          "decoded": "https://x.com/iwami_kankou"
+        },
+        {
+          "dpi": 150,
+          "decoded": "https://x.com/iwami_kankou"
+        }
+      ]
+    },
+    {
+      "file": "kani_outside.png",
+      "tests": [
+        {
+          "dpi": 300,
+          "decoded": "https://github.com/social-calculus/tane-tsutsumi"
+        },
+        {
+          "dpi": 150,
+          "decoded": "https://github.com/social-calculus/tane-tsutsumi"
+        }
+      ]
+    },
+    {
+      "file": "eki_inside.png",
+      "tests": [
+        {
+          "dpi": 300,
+          "decoded": "https://x.com/iwami_kankou"
+        },
+        {
+          "dpi": 150,
+          "decoded": "https://x.com/iwami_kankou"
+        }
+      ]
+    },
+    {
+      "file": "eki_outside.png",
+      "tests": [
+        {
+          "dpi": 300,
+          "decoded": "https://github.com/social-calculus/tane-tsutsumi"
+        },
+        {
+          "dpi": 150,
+          "decoded": "https://github.com/social-calculus/tane-tsutsumi"
+        }
+      ]
+    }
+  ],
+  "art": [
+    {
+      "id": "umi",
+      "native_pixels": [
+        972,
+        972
+      ],
+      "effective_ppi": 124.7,
+      "upscaled": false
+    },
+    {
+      "id": "kani",
+      "native_pixels": [
+        1024,
+        1024
+      ],
+      "effective_ppi": 131.4,
+      "upscaled": false
+    },
+    {
+      "id": "eki",
+      "native_pixels": [
+        1024,
+        1024
+      ],
+      "effective_ppi": 131.4,
+      "upscaled": false
+    }
+  ],
+  "qr_metrics": [
+    {
+      "url": "https://x.com/iwami_kankou",
+      "modules": 25,
+      "module_mm": 0.9090909090909091
+    },
+    {
+      "url": "https://github.com/social-calculus/tane-tsutsumi",
+      "modules": 33,
+      "module_mm": 0.5
+    },
+    {
+      "url": "https://x.com/iwami_kankou",
+      "modules": 25,
+      "module_mm": 0.9090909090909091
+    },
+    {
+      "url": "https://github.com/social-calculus/tane-tsutsumi",
+      "modules": 33,
+      "module_mm": 0.5
+    },
+    {
+      "url": "https://x.com/iwami_kankou",
+      "modules": 25,
+      "module_mm": 0.9090909090909091
+    },
+    {
+      "url": "https://github.com/social-calculus/tane-tsutsumi",
+      "modules": 33,
+      "module_mm": 0.5
+    }
+  ],
+  "editable_qrs_pass": true,
+  "offline_image_replacement_and_svg_export_pass": true,
+  "offline_settings_json_roundtrip_pass": true,
+  "invalid_qr_scheme_rejected": true,
+  "browser_errors": []
+}

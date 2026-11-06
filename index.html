@@ -1,120 +1,49 @@
 <!doctype html>
-<html lang="ja">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>種つつみ</title>
-<meta name="description" content="四隅を折る薬包のような種の包み。絵と QR を差し替えて、A4 で印刷できます。">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>岩美のたね — 一枚の絵を、ひと包みに。</title><link rel="icon" href="data:,">
+<meta name="description" content="岩美の風景を一枚に描いた、のりを使わない種の包み。絵と二つのQRをブラウザで差し替え、A4に印刷できます。">
 <style>
-  :root { --ink: #2c2620; --line: #d9cfbb; --bg: #f6f0e2; --paper: #fffdf6; --accent: #7a2e1c; }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Noto Serif JP', 'Noto Serif CJK JP', 'Yu Mincho', serif; }
-  main { display: grid; grid-template-columns: minmax(280px, 360px) 1fr; gap: 20px; padding: 20px; max-width: 1280px; margin: auto; }
-  h1 { font-size: 24px; margin: 0 0 4px; }
-  p { line-height: 1.7; margin: 0 0 10px; font-size: 14px; }
-  .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
-  label { display: block; font-size: 13px; font-weight: 700; margin: 12px 0 4px; }
-  input[type=text], select { width: 100%; padding: 7px 8px; border: 1px solid var(--line); border-radius: 5px; font: inherit; font-size: 14px; background: #fff; }
-  input[type=file] { width: 100%; font-size: 12px; }
-  .slot { display: grid; grid-template-columns: 48px 1fr; gap: 8px; align-items: center; margin-top: 8px; }
-  .slot img { width: 48px; height: 48px; object-fit: cover; border-radius: 4px; border: 1px solid var(--line); }
-  button { margin-top: 14px; width: 100%; padding: 11px; border: 0; border-radius: 6px; background: var(--accent); color: #fff; font: inherit; font-weight: 700; font-size: 15px; cursor: pointer; }
-  .previews { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
-  .previews figure { margin: 0; }
-  .previews figcaption { font-size: 13px; margin-bottom: 6px; font-weight: 700; }
-  .previews svg { width: 100%; height: auto; display: block; background: #fff; box-shadow: 0 1px 6px rgba(60,40,20,.2); }
-  small { font-size: 12px; color: #6a5f50; }
-  a { color: var(--accent); }
-  #print { display: none; }
-  @media (max-width: 760px) { main { grid-template-columns: 1fr; padding: 16px; } }
-  @page { size: A4 portrait; margin: 0; }
-  @media print {
-    body { background: #fff; }
-    main { display: none; }
-    #print { display: block; }
-    #print svg { display: block; width: 210mm; height: 297mm; page-break-after: always; break-after: page; }
-  }
-</style>
-</head>
-<body>
-<main>
-  <section class="panel">
-    <h1>種つつみ</h1>
-    <p>一枚の紙を折って差し込むだけで閉じる、薬包のような包みです。絵と QR を差し替えて、A4 で印刷できます。誰でも無料で使えます（<a href="https://creativecommons.org/licenses/by/4.0/deed.ja">CC BY 4.0</a>）。</p>
-    <label for="design">デザイン</label>
-    <select id="design"></select>
-    <label for="qr">中央の QR の行き先</label>
-    <input id="qr" type="text">
-    <label for="qrnote">QR の下のことば</label>
-    <input id="qrnote" type="text">
-    <label for="title">外側の題</label>
-    <input id="title" type="text">
-    <div id="slots"></div>
-    <button id="go" type="button">印刷する（PDF 保存もここから）</button>
-    <p style="margin-top:10px"><small>両面・長辺とじ、倍率 100%。点線の 4 辺を切り（約 19.8cm 四方）、中央の四角の線で下→右→左→上の順に折って、先を差し込みます。折り上がりは約 11cm 四方です。</small></p>
-  </section>
-  <section class="previews" id="previews"></section>
-</main>
+:root{--ink:#263b3d;--paper:#faf5e9;--accent:#9b4b30}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:'Noto Serif CJK JP','Yu Mincho',serif}header,main,footer{max-width:1440px;margin:auto;padding:28px}header{border-bottom:1px solid #cec5b2}h1{font-size:34px;margin:4px 0 12px}h2{font-size:20px}p{line-height:1.8}a{color:var(--accent)}.eyebrow{font:12px sans-serif;letter-spacing:.15em}main{display:grid;grid-template-columns:310px 1fr;gap:30px}aside{align-self:start;background:#fffdf8;border:1px solid #ddd3c1;padding:20px;border-radius:3px}label{display:block;font-size:13px;margin:16px 0 6px}input,select,textarea,button{font:14px sans-serif;width:100%;padding:9px;border:1px solid #b9c4be;background:white;color:var(--ink)}textarea{font-size:12px;line-height:1.6}input[type=file]{font-size:12px}button{cursor:pointer;background:var(--ink);color:white;margin-top:12px;border:0}button.secondary{background:#e9e3d6;color:var(--ink)}small{display:block;font-size:12px;line-height:1.8;margin:10px 0}.previews{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-content:start}figure{margin:0}figcaption{font-size:13px;margin-bottom:8px}.previews svg{width:100%;height:auto;background:white;box-shadow:0 3px 12px #263b3d18}.links{display:flex;gap:16px;flex-wrap:wrap}.notice{padding:12px;border-left:3px solid #9b4b30;background:#f3eadd;font-size:13px}.error{color:#a00;font-size:13px}#print{display:none}footer{font-size:12px}details summary{cursor:pointer;font-size:14px;margin-top:18px} @media(max-width:900px){main{grid-template-columns:1fr}.previews{grid-template-columns:1fr}header,main,footer{padding:18px}}@page{size:A4 portrait;margin:0}@media print{body{background:white}header,main,footer{display:none}#print{display:block}#print>svg{display:block;width:210mm;height:297mm;break-after:page}#print>svg:last-child{break-after:auto}}
+</style></head><body>
+<header><span class="eyebrow">TOTTORI / IWAMI · OPEN DESIGN</span><h1>一枚の絵を、ひと包みに。</h1><p>岩美駅前で育ったかぼちゃから、次の庭へ。<br>三つの風景を、のりを使わない小さな「たとう包み」にしました。</p>
+<div class="links"><a href="dist/tane-tsutsumi_iwami_a4.pdf">印刷用 PDF（3柄・6ページ）</a><a href="dist/fold-guide.pdf">折り方・試し刷り</a><a href="dist/practice.pdf">原寸の練習用紙</a><a href="dist/source.zip">編集用一式 ZIP</a></div></header>
+<main><aside><h2>絵と QR を差し替える</h2><small>画像も入力内容も外部へ送信しません。ZIP を展開すればオフラインでも使えます。</small>
+<label for="design">柄</label><select id="design"></select>
+<label for="art">一枚の絵（正方形がおすすめ）</label><input id="art" type="file" accept="image/png,image/jpeg,image/webp">
+<label for="qrUrl">中央 QR の URL</label><input id="qrUrl" type="url">
+<label for="qrTitle">中央 QR の見出し（12文字まで）</label><input id="qrTitle" maxlength="12">
+<label for="qrNote">中央 QR の下の文字（24文字まで）</label><input id="qrNote" maxlength="24">
+<label for="licenseQr">小さい QR の URL（公開先）</label><input id="licenseQr" type="url">
+<details><summary>題・表示欄・保存</summary><label for="title">題（6文字まで）</label><input id="title" maxlength="6"><label for="label">表示欄（項目 | 内容、6行）</label><textarea id="label" rows="6"></textarea>
+<button id="save" class="secondary">編集内容を JSON に保存</button><label for="load">保存した JSON を読み込む</label><input id="load" type="file" accept="application/json"></details>
+<p class="error" id="error" role="alert"></p><button id="go">この柄を印刷 / PDF に保存</button><button id="all" class="secondary">3柄をまとめて印刷</button><button id="svg" class="secondary">この柄の編集用 SVG を保存</button>
+<small>A4・両面・長辺とじ・100%。裁断後 192 mm 角、折り上がり 64 mm 角。白いフチは裁ち落とします。フォント環境で文字幅が変わるため、正式印刷は配布 PDF を推奨します。</small>
+<div class="notice">紙の厚みと保持力は実物で確認します。11/8 は各柄1枚を試し刷りし、折り方 PDF の確認欄を使ってください。</div></aside>
+<section class="previews" id="previews"></section></main>
+<footer>絵・型紙・折り図：CC BY 4.0 / SOCIAL CALCULUS　コード：MIT<br>AI 生成の創作風景です。岩美町の公式制作物ではありません。<a href="https://github.com/social-calculus/tane-tsutsumi">GitHub・出典・ライセンス</a></footer>
 <div id="print"></div>
-<script src="vendor/qrcode.js"></script>
-<script src="designs/designs.js"></script>
-<script src="tane.js"></script>
-<script>
-  const params = new URLSearchParams(location.search);
-  const designs = structuredClone(window.TANE_DESIGNS);
-  const base = structuredClone(window.TANE_DEFAULTS);
-  const $ = (id) => document.getElementById(id);
-  const SLOTS = [['cover', '外側の絵（閉じた姿）'], ['inside', '内側の大きな絵']];
-
-  function current() {
-    return designs.find((d) => d.id === $('design').value) ?? designs[0];
-  }
-  function render() {
-    const d = current();
-    $('previews').innerHTML = `
-      <figure><figcaption>内側（開いたとき）</figcaption>${TANE.page('inside', d, base, 'p1')}</figure>
-      <figure><figcaption>外側（紙の裏面）</figcaption>${TANE.page('outside', d, base, 'p2')}</figure>`;
-    $('slots').innerHTML = '';
-    for (const [key, name] of SLOTS) {
-      const src = d[key];
-      const row = document.createElement('div');
-      row.className = 'slot';
-      row.innerHTML = `<img alt="" src="${src}"><div><label style="margin:0">${name}</label><input type="file" accept="image/*"></div>`;
-      row.querySelector('input').addEventListener('change', (e) => {
-        const f = e.target.files[0];
-        if (!f) return;
-        const url = URL.createObjectURL(f);
-        d[key] = url;
-        render();
-      });
-      $('slots').appendChild(row);
-    }
-  }
-  function printPages(list) {
-    $('print').innerHTML = list.map((d, i) => TANE.page('inside', d, base, `a${i}`) + TANE.page('outside', d, base, `b${i}`)).join('');
-  }
-
-  for (const d of designs) $('design').add(new Option(d.name, d.id));
-  $('qr').value = base.qrUrl;
-  $('qrnote').value = base.qrNote;
-  $('title').value = base.title;
-  $('design').addEventListener('change', render);
-  for (const [id, key] of [['qr', 'qrUrl'], ['qrnote', 'qrNote'], ['title', 'title']]) {
-    $(id).addEventListener('input', () => {
-      base[key] = $(id).value;
-      render();
-    });
-  }
-  $('go').addEventListener('click', () => {
-    printPages([current()]);
-    window.print();
-  });
-  render();
-  // ?all=1 はすべてのデザインを印刷面に並べる（PDF を作るとき）
-  if (params.get('all')) printPages(designs);
-  window.TANE_READY = true;
-</script>
-</body>
-</html>
+<script src="vendor/qrcode.js"></script><script src="designs/art-data.js"></script><script src="designs/designs.js"></script><script src="tane.js"></script><script>
+if(location.protocol==='file:')document.querySelector('a[href="dist/source.zip"]').hidden=true;
+const $=id=>document.getElementById(id), designs=structuredClone(TANE_DESIGNS), base=structuredClone(TANE_DEFAULTS);
+const fields=['qrUrl','qrTitle','qrNote','licenseQr','title'];
+const current=()=>designs.find(d=>d.id===$('design').value)||designs[0];
+function populate(){for(const k of fields)$(k).value=base[k];$('label').value=base.label.map(x=>x.join(' | ')).join('\n')}
+function validate(){for(const key of ['qrUrl','licenseQr']){const u=new URL(base[key]);if(!['http:','https:'].includes(u.protocol))throw Error('QR の URL は https:// または http:// で始めてください。');if(base[key].length>90)throw Error('QR の URL は90文字以内にしてください。')}if(base.label.length!==6||base.label.some(([k,v])=>!k||!v||k.length>5||v.length>17))throw Error('表示欄は6行、項目5文字以内・内容17文字以内です。');if(base.title.length>6||base.qrTitle.length>12||base.qrNote.length>24||[...base.qrNote].reduce((n,c)=>n+(c.charCodeAt(0)<128 ? 0.6 : 1),0)>16)throw Error('文字数が多すぎます（QR下の文字は全角16文字相当まで）。')}
+function render(){try{validate();$('error').textContent='';$('previews').innerHTML=`<figure><figcaption>A 面 / 開いたときの一枚絵</figcaption>${TANE.page('inside',current(),base,'preview-a')}</figure><figure><figcaption>B 面 / 折ったときの外側</figcaption>${TANE.page('outside',current(),base,'preview-b')}</figure>`;return true}catch(e){$('error').textContent=e.message;return false}}
+function printPages(list){$('print').innerHTML=list.map((d,i)=>TANE.page('inside',d,base,'a'+i)+TANE.page('outside',d,base,'b'+i)).join('')}
+async function readyImages(){await document.fonts.ready;await Promise.all([...document.querySelectorAll('#print image')].map(e=>new Promise((resolve,reject)=>{const i=new Image();i.onload=resolve;i.onerror=()=>reject(Error('画像を読み込めません'));i.src=e.getAttribute('href')})))}
+async function print(list){if(!render())return;printPages(list);await readyImages();window.print()}
+function download(data,name,type){const u=URL.createObjectURL(new Blob([data],{type})),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
+async function dataImage(src){if(src.startsWith('data:'))return src;if(window.TANE_ART_DATA?.[src])return window.TANE_ART_DATA[src];const img=new Image();img.src=src;await img.decode();const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;c.getContext('2d').drawImage(img,0,0);return c.toDataURL('image/png')}
+for(const d of designs)$('design').add(new Option(d.name,d.id));$('design').onchange=()=>{$('art').value='';render()};populate();
+for(const k of fields)$(k).oninput=()=>{base[k]=$(k).value;render()};
+$('label').oninput=()=>{base.label=$('label').value.split('\n').map(s=>s.split('|').map(x=>x.trim()));render()};
+$('art').onchange=async()=>{const f=$('art').files[0];if(!f)return;const reader=new FileReader();reader.onload=()=>{current().art=reader.result;render()};reader.readAsDataURL(f)};
+$('go').onclick=()=>print([current()]);$('all').onclick=()=>print(designs);
+$('save').onclick=async()=>{if(!render())return;const saved=await Promise.all(designs.map(async d=>({...d,art:await dataImage(d.art)})));download(JSON.stringify({base,designs:saved},null,2),'tane-settings.json','application/json')};
+$('load').onchange=async()=>{try{const data=JSON.parse(await $('load').files[0].text());if(!data.base||!Array.isArray(data.designs)||data.designs.length!==3||data.designs.some(d=>typeof d.art!=='string'||!/^data:image\/(png|jpeg|webp);base64,/.test(d.art)))throw Error('このツールで保存した画像埋め込み JSON を選んでください。');const old=structuredClone(base);Object.assign(base,data.base);try{validate()}catch(e){Object.assign(base,old);throw e}for(let i=0;i<3;i++){if(typeof data.designs[i].art!=='string')throw Error('画像がありません');designs[i].art=data.designs[i].art}populate();render()}catch(e){$('error').textContent=e.message}};
+$('svg').onclick=async()=>{if(!render())return;const d={...current(),art:await dataImage(current().art)};for(const s of ['inside','outside'])download(TANE.page(s,d,base,'export-'+s),`${d.id}-${s}.svg`,'image/svg+xml')};
+render();window.TANE_APP={designs,base,printPages,readyImages};
+if(new URLSearchParams(location.search).has('all')) printPages(designs);
+window.TANE_READY=true;
+</script></body></html>
