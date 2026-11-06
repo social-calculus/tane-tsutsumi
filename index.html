@@ -42,7 +42,7 @@
 <main>
   <section class="panel">
     <h1>種つつみ</h1>
-    <p>四隅を折る、薬包のような包みです。絵と QR を差し替えて、A4 で印刷できます。誰でも無料で使えます（<a href="https://creativecommons.org/licenses/by/4.0/deed.ja">CC BY 4.0</a>）。</p>
+    <p>一枚の紙を折って差し込むだけで閉じる、薬包のような包みです。絵と QR を差し替えて、A4 で印刷できます。誰でも無料で使えます（<a href="https://creativecommons.org/licenses/by/4.0/deed.ja">CC BY 4.0</a>）。</p>
     <label for="design">デザイン</label>
     <select id="design"></select>
     <label for="qr">中央の QR の行き先</label>
@@ -53,7 +53,7 @@
     <input id="title" type="text">
     <div id="slots"></div>
     <button id="go" type="button">印刷する（PDF 保存もここから）</button>
-    <p style="margin-top:10px"><small>両面・長辺とじ、倍率 100%。点線の 4 辺を切り（約 19.8cm 四方）、裏の絵が外側になるよう四隅を中心へ折ります。</small></p>
+    <p style="margin-top:10px"><small>両面・長辺とじ、倍率 100%。点線の 4 辺を切り（約 19.8cm 四方）、中央の四角の線で下→右→左→上の順に折って、先を差し込みます。折り上がりは約 11cm 四方です。</small></p>
   </section>
   <section class="previews" id="previews"></section>
 </main>
@@ -66,7 +66,7 @@
   const designs = structuredClone(window.TANE_DESIGNS);
   const base = structuredClone(window.TANE_DEFAULTS);
   const $ = (id) => document.getElementById(id);
-  const SLOTS = [['front', '外側の絵'], ['top', '上の角'], ['right', '右の角'], ['bottom', '下の角'], ['left', '左の角']];
+  const SLOTS = [['cover', '外側の絵（閉じた姿）'], ['inside', '内側の大きな絵']];
 
   function current() {
     return designs.find((d) => d.id === $('design').value) ?? designs[0];
@@ -78,7 +78,7 @@
       <figure><figcaption>外側（紙の裏面）</figcaption>${TANE.page('outside', d, base, 'p2')}</figure>`;
     $('slots').innerHTML = '';
     for (const [key, name] of SLOTS) {
-      const src = key === 'front' ? d.front : d[key].img;
+      const src = d[key];
       const row = document.createElement('div');
       row.className = 'slot';
       row.innerHTML = `<img alt="" src="${src}"><div><label style="margin:0">${name}</label><input type="file" accept="image/*"></div>`;
@@ -86,8 +86,7 @@
         const f = e.target.files[0];
         if (!f) return;
         const url = URL.createObjectURL(f);
-        if (key === 'front') d.front = url;
-        else d[key].img = url;
+        d[key] = url;
         render();
       });
       $('slots').appendChild(row);

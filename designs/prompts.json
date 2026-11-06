@@ -1,22 +1,13 @@
 {
-  "style": "Style: Japanese mingei woodblock print, flat areas of color with a limited palette of about five colors, bold simple shapes, visible soft paper grain, warm and friendly, consistent with a hand-printed folk craft. It must print well on an office laser printer. Absolutely no text, no letters, no kanji, no numbers, no logos, no signature, no seal stamp, no border, no frame. No people. Fill the whole square edge to edge; keep the main subject in the center with generous space around it.",
+  "style": "Style: Japanese shin-hanga woodblock print in the spirit of Kawase Hasui and Hokusai, fine black ink outlines, rich detail, soft bokashi color gradation, subtle washi paper grain, natural colors of indigo, teal, pine green, sand and rust. A large landscape painting, not an icon or sticker. Absolutely no text, no letters, no kanji, no numbers, no logos, no signature, no seal stamp, no border, no frame. No people. Fill the whole square edge to edge.",
   "art": {
-    "kani/front": "one big male snow crab seen from above on a dark indigo winter sea of Japan, gentle snow falling, tiny lights of small fishing boats on the far horizon",
-    "kani/top": "one male snow crab with long legs, seen from above, on a pale cream background with a few simple waves",
-    "kani/right": "one small female snow crab holding bright orange roe under her body, on a soft blue-grey background",
-    "kani/bottom": "a handful of small pale orange deep-sea shrimp arranged in a loose circle, on a cream background",
-    "kani/left": "one plump deep-sea eelpout fish with a big soft head and a friendly expression, on a dark teal background",
+    "umi/inside": "A wide panorama of the Uradome coast on the Sea of Japan in Tottori. The middle of the picture is calm deep blue-green sea. Top: a white granite cliff with windswept black pines. Right: a tall white granite rock islet with one pine on its top and small rocks around it. Left: a long rocky headland and distant blue mountains, with a few sea birds. Bottom: a pale sand beach with gentle white waves and two small pines.",
+    "umi/cover": "Close view of a white granite rock arch standing in the Sea of Japan with a single windswept pine tree on its very top, clear turquoise water showing through the arch, small rocks, white foam, a soft sky with a few clouds.",
 
-    "umi/front": "a white rocky sea arch with a single pine tree on its very top, standing in clear turquoise sea, small rocky islets around it, a big summer sky",
-    "umi/top": "close view of a rocky sea arch with one windswept pine tree on top, turquoise water through the arch",
-    "umi/right": "one small white sightseeing boat among jagged rocky islets on a calm blue sea",
-    "umi/bottom": "two empty bright orange sea kayaks floating on clear shallow blue water near a rocky cliff, seen from above",
-    "umi/left": "long fronds of brown-green akamoku seaweed swaying underwater, with small bubbles, in deep blue-green water",
+    "kani/inside": "A winter panorama of a small Japanese fishing harbor on the Sea of Japan at dusk, Tottori. The middle of the picture is dark indigo water with soft snow falling. Top: snowy low mountains under a dusky sky. Right: small wooden crab fishing boats with bright lamps moored at a stone pier. Left: a row of old fishing houses with snow on dark roofs, warm lit windows. Bottom: a stone quay with wooden crates and coiled rope, snow on the ground. Small details only, no people.",
+    "kani/cover": "One big male snow crab with long jointed legs seen from above, painted in fine woodblock detail, resting on dark indigo winter sea with stylized waves in the manner of Hokusai, gentle snow falling.",
 
-    "eki/front": "a small old wooden rural Japanese train station with a red tiled roof and white wooden posts, a giant elongated orange pumpkin beside the entrance, green mountains behind, autumn afternoon. No signs, no railway company marks",
-    "eki/top": "the entrance of a small wooden rural train station with a red tiled roof and white wooden posts, a small red mailbox beside it. No signs, no railway company marks",
-    "eki/right": "one giant elongated orange pumpkin sitting on a wooden pallet, with green vines and big leaves around it",
-    "eki/bottom": "a wooden ladle and a folded white hand towel resting on the edge of a steaming wooden hot spring bath, soft steam",
-    "eki/left": "several flat dried flounder fish hanging in a row on a simple wooden drying rack by the sea, blue sky"
+    "eki/inside": "An autumn panorama of a quiet country town in Tottori, Japan. Important: the four corners of the image will be cut off, so everything important must stay well inside a diamond shape, close to the center. The very middle of the picture is a soft rice field and gentle mist. Top center: green and rust colored mountains. Middle right, not touching the right edge: a small old one-storey railway station with a red tiled roof and white wooden columns, drawn small and complete, a short single track in front, no signs, no company marks. Middle left, not touching the left edge: a small old hot spring village with wooden inns and soft white steam rising among trees. Bottom center, directly below the middle of the picture: one very large elongated orange pumpkin resting on grass, complete and not cut off, with a stone path around it.",
+    "eki/cover": "A small old one-storey Japanese country railway station with a red tiled roof and white wooden columns, seen from the front, a very large elongated orange pumpkin beside the entrance, green mountains behind in autumn, soft evening light. No signs, no company marks."
   }
 }
