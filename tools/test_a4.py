@@ -14,8 +14,8 @@ from PIL import Image, ImageDraw
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from a4fold import CELL, U4, V6, state_closed, state_hexagon, area
 from a4fold_view import render, state_flap_open
-from build_a4 import (CONF, QR_CARD, RATIO, TONGUE_H, TONGUE_QR, WASHI, X_QR, build_pages, fit, make_back,
-                      make_card, make_tongue, pumpkin_icon, qr_alone, seal_icon, textures, x_emblem)
+from build_a4 import (CONF, QR_CARD, RATIO, RED, TONGUE_H, TONGUE_QR, WASHI, X_QR, build_pages, corner_mark,
+                      fit, make_back, make_card, make_tongue, pumpkin_icon, qr_alone, seal_icon, textures, x_emblem)
 from print_design import FONTS, PAPER, QUIET, draw_text, emblem_knock, font, qr_alpha, qr_matrix, qr_side
 
 ART = Path(__file__).resolve().parent.parent / 'designs/a4/uradome'
@@ -113,6 +113,25 @@ class PrintTests(unittest.TestCase):
         self.assertGreater(at(CELL * 0.25, tip_v + TONGUE_H * 0.25)[0], 200)
         self.assertGreater(at(CELL * 0.75, tip_v + TONGUE_H * 0.25)[2], 200)
         self.assertGreater(at(CELL * 0.25, tip_v + TONGUE_H * 0.75)[2], 200)
+
+    def test_corner_mark_flush_on_inside_top_right(self):
+        blank = np.zeros((400, 300, 3), np.float32)
+        corner_mark(blank)
+        h, w = blank.shape[:2]
+        red = np.array(RED, np.float32)
+        self.assertTrue(np.all(blank[0, w - 1] == red))
+        self.assertTrue(np.all(blank[0, w - 2] == red))
+        self.assertTrue(np.all(blank[1, w - 1] == red))
+        self.assertTrue(np.all(blank[0, 0] == 0))
+        self.assertTrue(np.all(blank[h - 1, w - 1] == 0))
+        art = load_art()
+        page_p, page_q = build_pages(art)
+        inside, outside = np.asarray(page_p), np.asarray(page_q)
+        self.assertTrue(np.all(inside[0, -1] == RED))
+        self.assertTrue(np.all(inside[0, -8] == RED))
+        self.assertFalse(np.all(inside[0, 0] == RED))
+        self.assertFalse(np.all(outside[0, -1] == RED))
+        self.assertFalse(np.all(outside[0, 0] == RED))
 
     def test_user_art_not_cropped(self):
         for name in RATIO:

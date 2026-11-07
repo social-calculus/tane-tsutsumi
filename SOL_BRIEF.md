@@ -10,11 +10,11 @@
 
 ## ビルドと検査
 
-hap0pyではHandsのpi槽で実行する。フォントはリポジトリ内のIBM Plexを使い、ホストのフォントには依存しない。
+この樹は完成済みで、ローカル正本は `/srv/archive/tane-tsutsumi`。公開PDFを正とし、柄や折りを足さない。フォントはリポジトリ内のIBM Plexを使い、ホストのフォントには依存しない。作り直すときだけ、樹を `/srv/hot` か `/srv/oneoff` に戻してからHandsのpi槽で実行する（アーカイブパスのままでは `hands-exec` が受け付けない）。
 
 ```sh
-hands-exec pi /srv/hot/tane-tsutsumi-yakuho -- env \
-  UV_PROJECT_ENVIRONMENT=/var/cache/hap0py/venv/pi/tane-tsutsumi-yakuho \
+hands-exec pi /srv/hot/tane-tsutsumi -- env \
+  UV_PROJECT_ENVIRONMENT=/var/cache/hap0py/venv/pi/tane-tsutsumi \
   uv run python tools/build_a4.py uradome
 ```
 
@@ -27,4 +27,4 @@ hands-exec pi /srv/hot/tane-tsutsumi-yakuho -- env \
 - `scan-sim.json`：印刷と撮影の模擬。zxing-cpp に、環境にあれば zbar と WeChat を加えて比べる。OpenCV標準は丸い位置検出パターンと2コード同時の画面が苦手なので合否に使わない。位置検出パターンの角丸を大きくすると zbar の成績が急に落ちるので、`EYE_RADII` を変えたら必ず測り直す。
 - `preflight.json`：入力の寸法・裁切・ハッシュ、PDFのページ数と寸法、フォント、検証境界。
 
-デジタル復号は実機のスマホや印刷品の検査ではない。新しいQRや文字位置を変更したら、本人に再度実物で見てもらう。原画、他人の未コミット変更、未選択の別柄を勝手に変更・削除しない。
+デジタル復号は実機のスマホや印刷品の検査ではない。公開する正本は浦富海岸の1款だけ。未採用の下書きと参照写真は公開物に入れない。
