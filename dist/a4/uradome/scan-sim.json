@@ -1,0 +1,51 @@
+{
+  "trials": 120,
+  "note": "Simulated print and photo, aimed at one code at a time; compares designs. Not a phone or paper test.",
+  "codes": {
+    "x": {
+      "url": "https://x.com/iwami_kankou",
+      "read_percent": {
+        "zxing-cpp": 100,
+        "zbar": 98,
+        "wechat": 92,
+        "opencv": 47
+      },
+      "version": 6,
+      "error": "h",
+      "module_mm": 0.93,
+      "blocked_percent": 8.3,
+      "flips_left": 26,
+      "flips_without_emblem": 54
+    },
+    "grow": {
+      "url": "https://social-calculus.github.io/tane-tsutsumi/grow.html",
+      "read_percent": {
+        "zxing-cpp": 95,
+        "zbar": 94,
+        "wechat": 87,
+        "opencv": 42
+      },
+      "version": 5,
+      "error": "q",
+      "module_mm": 0.76,
+      "blocked_percent": 2.8,
+      "flips_left": 24,
+      "flips_without_emblem": 32
+    },
+    "source": {
+      "url": "https://github.com/social-calculus/tane-tsutsumi",
+      "read_percent": {
+        "zxing-cpp": 95,
+        "zbar": 93,
+        "wechat": 83,
+        "opencv": 39
+      },
+      "version": 5,
+      "error": "q",
+      "module_mm": 0.76,
+      "blocked_percent": 3.6,
+      "flips_left": 20,
+      "flips_without_emblem": 34
+    }
+  }
+}

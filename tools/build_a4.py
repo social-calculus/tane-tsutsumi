@@ -7,24 +7,30 @@
   hexagon.png  六角形に開いた絵    210:297（四隅は使わない）
   flat.png     全部開いた内側      210:297（真ん中の帯は hexagon で上書きする）
   back.png     任意。なければ表示欄を自動で作る
+  tongue.png   任意。なければ舌の案内を自動で作る
 
 出力 dist/a4/<デザイン名>/：print.pdf（1 ページ目が内側 P、2 ページ目が外側 Q）と各画面の予想図。
 PDF は紙の端まで絵を入れる。--margin は複合機が刷れない幅を予想図に白く出すだけで、PDF は変えない。
 """
 from __future__ import annotations
 import argparse, hashlib, json, math, pathlib, re, sys
-import numpy as np, cv2
+import numpy as np, cv2, zxingcpp
 from PIL import Image, ImageDraw
-from print_design import QUIET, draw_text, qr_image
+from print_design import QUIET, draw_qr, draw_text, qr_side
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / 'tools'))
 from a4fold import *
-from a4fold_view import render, TW, TH, SCALE, state_top_mountain
+from a4fold_view import render, TW, TH, SCALE, state_flap_open, state_top_mountain
 
 DPI = 300
 PX = DPI / 25.4
+# 札・背面・舌は 45 度回して刷るので、倍の解像度で作って文字と QR の輪郭を保つ
+CARD_RES = 2
+CPX = PX * CARD_RES
 INK = (29, 48, 54)
+RULE = (160, 150, 130)
+CAPTION = (84, 79, 68)
 WASHI = (240, 233, 216)
 RED = (176, 58, 42)
 CONF = {
@@ -32,52 +38,150 @@ CONF = {
     'qr_source': 'https://github.com/social-calculus/tane-tsutsumi',
     'qr_grow': 'https://social-calculus.github.io/tane-tsutsumi/grow.html',
     'qr_label': '岩美町の中の人',
-    'qr_note': '@iwami_kankou',
-    'label': [('名称', '観賞用かぼちゃの種'), ('品種', 'ビッグマックス'), ('内容量', '3粒'),
-              ('採種地', '鳥取県岩美町 岩美駅前'), ('採種', '2026年11月'), ('用途', '食べずに、育てて楽しむ')],
+    'qr_note': 'X  @iwami_kankou',
+    'label': [('名称', 'かぼちゃの種（栽培用）'), ('内容量', '3粒'), ('採種地', '鳥取県岩美町 岩美駅前'),
+              ('採種', '2026年11月'), ('注意', '食べられません'), ('ひとこと', '何が育つかはお楽しみ')],
+    'credit': '絵・型紙 CC BY 4.0 · SOCIAL CALCULUS',
+    'tongue_note': '種は春まで、涼しく乾いたところに。',
+    'tongue': [('育て方', '畑で、大きな一玉を。', 'qr_grow'), ('絵と型紙', '出典を書けば、自由に。', 'qr_source')],
+    # 内側 QR の中央に置く絵。flat.png の中の位置（幅・高さに対する比）
+    'emblem_box': (0.414, 0.0653, 0.893, 0.1969),
 }
 # QR の札：種の下の格。左下は隅の翼が重なるので避ける（U, V は mm）
 # 折り線は tools 側で印刷面に足す。絵には描かせない
-QR_CARD = dict(u0=74.0, v0=76.0, w=58.0, h=58.0, qr=40.0)
+QR_CARD = dict(u0=74.0, v0=76.0, w=58.0, h=58.0)
+# QR のモジュール（300 dpi の px）と型番。舌の 2 つは同じ型番・同じ大きさにそろえる
+X_QR = dict(mod=11, version=6, error='h', emblem_modules=20)
+TONGUE_QR = dict(mod=9, version=5, error='q', emblem_modules=6)
+TONGUE_H = 210 - V6
+# 札は絵が透ける磨りガラスのような薄紙。下の絵の割合を QR の周りで控えめに、札の縁へ向けて濃くする
+VEIL_CODE, VEIL_EDGE = 0.22, 0.42
+FROST_MM = 0.30  # QR の下の絵だけ少しぼかして、読み取りの邪魔になる細かい輪郭を消す
 
 
-def washi(w, h, seed=7):
+def washi(w, h, seed=7, res=1):
     rng = np.random.default_rng(seed)
     base = np.ones((h, w, 3), np.float32) * np.array(WASHI, np.float32)
-    n = cv2.GaussianBlur(rng.normal(0, 1, (h, w)).astype(np.float32), (0, 0), 6)
+    n = cv2.GaussianBlur(rng.normal(0, 1, (h, w)).astype(np.float32), (0, 0), 6 * res)
     n = n / (n.std() + 1e-6)
-    fine = rng.normal(0, 1, (h, w)).astype(np.float32)
-    v = (n * 3.0 + fine * 1.5)[:, :, None]
+    fine = cv2.GaussianBlur(rng.normal(0, 1, (h, w)).astype(np.float32), (0, 0), 0.5 * res)
+    fine = fine / (fine.std() + 1e-6)
+    v = (n * 1.8 + fine * 1.5)[:, :, None]
     return Image.fromarray(np.clip(base + v, 0, 255).astype(np.uint8))
 
 
+def seal_icon(px):
+    """正面の印と同じ意匠の小さな印"""
+    s = px * 4
+    im = Image.new('RGBA', (s, s), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    d.rounded_rectangle((0, 0, s - 1, s - 1), radius=s * 0.17, fill=RED + (255,))
+    draw_text(d, (s / 2, s * 0.285), '岩', s * 0.41, fill=WASHI, anchor='mm', medium=True, scale=1)
+    draw_text(d, (s / 2, s * 0.715), '美', s * 0.41, fill=WASHI, anchor='mm', medium=True, scale=1)
+    return im.resize((px, px), Image.LANCZOS)
+
+
+def pumpkin_icon(px):
+    """育て方の目印。小さく刷るので、畝と軸だけの形にする"""
+    s = px * 6
+    im = Image.new('RGBA', (s, s), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    line = max(1, s // 64)
+    d.rounded_rectangle((s * 0.44, s * 0.05, s * 0.57, s * 0.30), radius=s * 0.035, fill=(84, 108, 58), outline=(52, 70, 40), width=line)
+    cy, ry = s * 0.59, s * 0.37
+    for off, half, colour in ((-0.29, 0.195, (186, 84, 30)), (0.29, 0.195, (186, 84, 30)),
+                              (-0.155, 0.22, (208, 100, 34)), (0.155, 0.22, (208, 100, 34)), (0, 0.205, (230, 122, 44))):
+        cx = s * (0.5 + off)
+        d.ellipse((cx - half * s, cy - ry, cx + half * s, cy + ry), fill=colour, outline=(120, 58, 24), width=line)
+    return im.resize((px, px), Image.LANCZOS)
+
+
+def art_cutout(flat, box, width):
+    """原画から赤い生き物を切り抜く（紙の色は透かす）"""
+    w, h = flat.size
+    crop = flat.convert('RGB').crop((int(box[0] * w), int(box[1] * h), int(box[2] * w), int(box[3] * h)))
+    big = np.asarray(crop.resize((crop.width * 3, crop.height * 3), Image.LANCZOS), np.uint8)
+    lab = cv2.cvtColor(big, cv2.COLOR_RGB2LAB).astype(np.float32)
+    mask = ((lab[..., 1] > 143) | (lab[..., 0] < 92)).astype(np.uint8) * 255
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (17, 17)))
+    n, labels, stats, _ = cv2.connectedComponentsWithStats(mask)
+    largest = 1 + int(np.argmax(stats[1:, cv2.CC_STAT_AREA]))
+    keep = (labels == largest).astype(np.uint8) * 255
+    contours, _ = cv2.findContours(keep, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cv2.drawContours(keep, contours, -1, 255, -1)
+    keep = cv2.GaussianBlur(keep, (0, 0), 1.2)
+    ys, xs = np.where(keep > 128)
+    y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
+    cut = Image.fromarray(np.dstack([big[y0:y1, x0:x1], keep[y0:y1, x0:x1]]), 'RGBA')
+    return cut.resize((width, round(width * cut.height / cut.width)), Image.LANCZOS)
+
+
+def card_art(hexagon, w, h):
+    """札の座標で hexagon を引く。札の下の絵がそのまま透けて続く"""
+    a = np.asarray(hexagon.convert('RGB'), np.float32)
+    ih, iw = a.shape[:2]
+    jj, ii = np.meshgrid((np.arange(h) + 0.5) / CPX, (np.arange(w) + 0.5) / CPX, indexing='ij')
+    x, y = from_uv(QR_CARD['u0'] + ii, QR_CARD['v0'] + jj)
+    return cv2.remap(a, (x / W * iw - 0.5).astype(np.float32), ((L - y) / L * ih - 0.5).astype(np.float32), cv2.INTER_LINEAR)
+
+
 def make_back():
-    s = int(round(CELL * PX))
-    im = washi(s, s, 11); d = ImageDraw.Draw(im)
+    """閉じたときの背面：種の表示だけ。QR は舌へ移した"""
+    s = int(round(CELL * CPX))
+    im = washi(s, s, 11, CARD_RES); d = ImageDraw.Draw(im)
     def text(x, y, value, mm, **kw):
-        draw_text(d, (x * PX, y * PX), value, mm, **kw)
-    text(5.5, 7.2, '岩美のたね', 4.5, medium=True)
-    text(CELL - 5.5, 8.0, 'BIG MAX', 2.2, anchor='rm', medium=True)
-    text(5.5, 12.0, '観賞用の、大きなひと粒。', 1.9, fill=(110, 103, 89))
-    for i, (k, v) in enumerate(CONF['label']):
-        y = 17 + i * 4.1
-        text(5.5, y, k, 2.0, fill=(110, 103, 89))
-        text(19, y, v, 2.2)
-    d.line([(5.5 * PX, 40.5 * PX), ((CELL - 5.5) * PX, 40.5 * PX)], fill=(175, 165, 145), width=1)
-    text(5.5, 43.8, '絵と型紙', 2.1, medium=True)
-    source = qr_image(CONF['qr_source'], 21)
-    im.paste(source, (int(5.5 * PX), int(46.8 * PX)))
-    text(5.5, 70.0, '（AI生成の絵です）', 1.65, fill=(110, 103, 89))
-    text(30, 43.8, 'CC BY 4.0', 2.2, medium=True)
-    text(30, 46.8, 'SOCIAL CALCULUS', 1.8)
-    grow = qr_image(CONF['qr_grow'], 25)
-    im.paste(grow, (int(45 * PX), int(47.8 * PX)))
-    text(30, 55.8, '育て方', 2.7, medium=True)
-    text(30, 60.3, '畑で、一株一果。', 1.6)
-    # A small sprout in the free area, never inside the QR quiet zone.
-    d.line([(36 * PX, 68 * PX), (36 * PX, 64 * PX)], fill=INK, width=2)
-    d.ellipse((33 * PX, 62 * PX, 36 * PX, 64.5 * PX), fill=INK)
-    d.ellipse((36 * PX, 61.4 * PX, 39 * PX, 63.9 * PX), fill=INK)
+        draw_text(d, (x * CPX, y * CPX), value, mm, scale=CPX, **kw)
+    m = 6.0
+    text(m, 10.2, '岩美のたね', 5.4, medium=True)
+    y, pitch = 17.0, 6.8
+    def rule(at):
+        d.line([(m * CPX, at * CPX), ((CELL - m) * CPX, at * CPX)], fill=RULE, width=CARD_RES + 1)
+    rule(y)
+    for k, v in CONF['label']:
+        text(m, y + pitch / 2, k, 2.6, fill=CAPTION)
+        text(m + 13.5, y + pitch / 2, v, 2.9, medium=k == '注意')
+        y += pitch
+        rule(y)
+    text(CELL - m, y + 6.2, CONF['credit'], 2.3, anchor='rm', fill=CAPTION)
+    return im
+
+
+def make_tongue(hexagon=None):
+    """舌：ふたを持ち上げると最初に見える面。同じ大きさの QR を 2 つ並べ、下に海を置く。
+    上端が舌の先、下端が折り目。この面に折り線は通らない"""
+    w, h = int(round(CELL * CPX)), int(round(TONGUE_H * CPX))
+    im = washi(w, h, 41, CARD_RES)
+    if hexagon is not None:
+        a = np.asarray(im, np.float32)
+        band_mm = 14.0
+        band = int(band_mm * CPX)
+        iw, ih = hexagon.size
+        # 全開の絵の波を、縮尺 1/1.8 で借りる（原画の解像度のまま締まって見える）
+        zoom = 1.8
+        bw = int(CELL * zoom / W * iw); bh = int(band_mm * zoom / L * ih)
+        x0, y0 = int(iw * 0.20), int(ih * 0.655)
+        sea = hexagon.convert('RGB').crop((x0, y0, x0 + bw, y0 + bh)).resize((w, band), Image.LANCZOS)
+        t = np.linspace(0, 1, band, dtype=np.float32)
+        t = np.clip((t - 0.04) / 0.55, 0, 1)
+        t = (t * t * (3 - 2 * t))[:, None, None]
+        a[h - band:] = a[h - band:] * (1 - t) + np.asarray(sea, np.float32) * t
+        im = Image.fromarray(np.clip(a, 0, 255).astype(np.uint8))
+    d = ImageDraw.Draw(im)
+    def text(x, y, value, mm, **kw):
+        draw_text(d, (x * CPX, y * CPX), value, mm, scale=CPX, **kw)
+    text(CELL / 2, 4.8, CONF['tongue_note'], 2.5, anchor='mm')
+    mod = TONGUE_QR['mod'] * CARD_RES
+    side = qr_side(CONF['qr_grow'], mod, TONGUE_QR['version'], TONGUE_QR['error'])
+    emblem_px = TONGUE_QR['emblem_modules'] * mod
+    icons = {'qr_grow': pumpkin_icon(emblem_px), 'qr_source': seal_icon(emblem_px)}
+    gap = (w - 2 * side) // 3
+    top = int(6.9 * CPX)
+    for i, (title, sub, key) in enumerate(CONF['tongue']):
+        x = gap + i * (side + gap)
+        draw_qr(im, (x, top), CONF[key], mod, version=TONGUE_QR['version'], error=TONGUE_QR['error'], emblem=icons.get(key))
+        cx = (x + side / 2) / CPX
+        y = (top + side) / CPX
+        text(cx, y + 1.5, title, 3.0, anchor='mm', medium=True)
+        text(cx, y + 5.5, sub, 2.6, anchor='mm')
     return im
 
 
@@ -91,16 +195,49 @@ def with_seal(img):
     return im
 
 
-def make_card():
-    w, h = int(QR_CARD['w'] * PX), int(QR_CARD['h'] * PX)
-    im = washi(w, h, 23); d = ImageDraw.Draw(im)
-    # A small editorial masthead, rounded X code, and a readable account handle.
-    d.rectangle((6.7 * PX, 3.8 * PX, 7.4 * PX, 7.0 * PX), fill=RED)
-    draw_text(d, (w / 2, 5.4 * PX), CONF['qr_label'], 3.1, anchor='mm', medium=True)
-    draw_text(d, (w / 2, 9.7 * PX), '海と、暮らしの便り。', 1.8, anchor='mm', fill=(110, 103, 89))
-    qr = qr_image(CONF['qr_inside'], QR_CARD['qr'], rounded=True, logo=True)
-    im.paste(qr, ((w - qr.width) // 2, int(12.3 * PX)))
-    draw_text(d, (w / 2, 55.0 * PX), CONF['qr_note'], 2.4, anchor='mm', medium=True)
+def x_emblem(flat, mod):
+    if flat is not None and CONF.get('emblem_box'):
+        return art_cutout(flat, CONF['emblem_box'], X_QR['emblem_modules'] * mod)
+    return seal_icon(int(mod * 7))
+
+
+def frosted(paper, hexagon, code_side):
+    """絵が透ける薄紙。QR の周りは控えめにぼかし、札の縁へ向けて絵をはっきりさせる"""
+    w, h = paper.size
+    art = card_art(hexagon, w, h)
+    soft = cv2.GaussianBlur(art, (0, 0), FROST_MM * CPX)
+    yy, xx = np.mgrid[0:h, 0:w]
+    reach = np.maximum(np.abs(xx - w / 2), np.abs(yy - h / 2))
+    t = np.clip((reach - code_side / 2) / (w / 2 - code_side / 2), 0, 1).astype(np.float32)
+    t = (t * t * (3 - 2 * t))[..., None]
+    picture = soft * (1 - t) + art * t
+    share = VEIL_CODE + (VEIL_EDGE - VEIL_CODE) * t
+    return Image.fromarray(np.clip(picture * share + np.asarray(paper, np.float32) * (1 - share), 0, 255).astype(np.uint8))
+
+
+def make_card(hexagon=None, flat=None):
+    """種の下の札。絵が透ける薄紙に、ぼかしの QR と原画の蟹を置く"""
+    w, h = int(QR_CARD['w'] * CPX), int(QR_CARD['h'] * CPX)
+    im = washi(w, h, 23, CARD_RES)
+    mod = X_QR['mod'] * CARD_RES
+    side = qr_side(CONF['qr_inside'], mod, X_QR['version'], X_QR['error'])
+    if hexagon is not None:
+        im = frosted(im, hexagon, side)
+    x, y = (w - side) // 2, (h - side) // 2
+    draw_qr(im, (x, y), CONF['qr_inside'], mod, version=X_QR['version'], error=X_QR['error'], emblem=x_emblem(flat, mod))
+    d = ImageDraw.Draw(im)
+    zone = y / CPX / 2 + 0.3
+    draw_text(d, (w / 2, zone * CPX), CONF['qr_label'], 3.1, anchor='mm', medium=True, scale=CPX)
+    draw_text(d, (w / 2, h - zone * CPX), CONF['qr_note'], 2.4, anchor='mm', medium=True, scale=CPX)
+    return im
+
+
+def qr_alone(key):
+    """1 コードだけの画像（画面から試し読みする用）"""
+    cfg = X_QR if key == 'qr_inside' else TONGUE_QR
+    side = qr_side(CONF[key], cfg['mod'], cfg['version'], cfg['error'])
+    im = Image.new('RGB', (side, side), WASHI)
+    draw_qr(im, (0, 0), CONF[key], cfg['mod'], version=cfg['version'], error=cfg['error'])
     return im
 
 
@@ -187,6 +324,7 @@ def build_pages(art):
     y = L - gt
     hexa, flat, scroll, front = sampler(art['hexagon']), sampler(art['flat']), sampler(art['scroll']), sampler(with_seal(art['front']))
     back = sampler(art.get('back') or make_back())
+    tongue = sampler(art.get('tongue') or make_tongue(art['hexagon']))
 
     # ---- P 面（内側）。そのまま x = gx
     x = gx
@@ -194,7 +332,7 @@ def build_pages(art):
     band = (y >= 105) & (y <= 192)
     page_p[band] = hexa(x / W, (L - y) / L)[band]
     u, v = to_uv(x, y)
-    card = sampler(make_card())
+    card = sampler(make_card(art['hexagon'], art['flat']))
     su, sv = (u - QR_CARD['u0']) / QR_CARD['w'], (v - QR_CARD['v0']) / QR_CARD['h']
     inside = (su >= 0) & (su <= 1) & (sv >= 0) & (sv <= 1)
     page_p[inside] = card(su, sv)[inside]
@@ -224,6 +362,8 @@ def build_pages(art):
     page_q[wing_l | wing_r] = scroll_col[wing_l | wing_r]
     page_q[is_front] = front((u - U4) / CELL, (V5 - v) / CELL)[is_front]
     page_q[is_back] = back(1 - (u - U4) / CELL, (v - V5) / CELL)[is_back]
+    # 舌は V6 で折り上げてふたの下へ入る。ふたを持ち上げた向きで正立するよう、先端を上にする
+    page_q[is_tongue] = tongue((u - U4) / CELL, (210 - v) / TONGUE_H)[is_tongue]
     add_guides(page_p, page_q)
     return (Image.fromarray(np.clip(page_p, 0, 255).astype(np.uint8)),
             Image.fromarray(np.clip(page_q, 0, 255).astype(np.uint8)))
@@ -245,6 +385,7 @@ def textures(page_p, page_q, margin=0.0):
 STATES = [
     ('closed_front', '閉じた状態・表', state_closed, dict(kind='uv')),
     ('closed_back', '閉じた状態・裏', state_closed, dict(kind='uv', back=True)),
+    ('flap_open', 'ふたを上げる', state_flap_open, dict(kind='uv')),
     ('scroll', 'ひとつ開く', state_strip, dict(kind='uv')),
     ('hexagon', '六角形に開く', state_hexagon, dict(kind='xy')),
     ('flat_p', '全開・内側', Sheet, dict(kind='xy')),
@@ -286,8 +427,9 @@ def main():
     a = ap.parse_args()
     src = ROOT / 'designs/a4' / a.design
     art = {k: fit(Image.open(src / f'{k}.png').convert('RGB'), k) for k in RATIO}
-    if (src / 'back.png').exists():
-        art['back'] = Image.open(src / 'back.png')
+    for extra in ('back', 'tongue'):
+        if (src / f'{extra}.png').exists():
+            art[extra] = Image.open(src / f'{extra}.png')
     out = ROOT / 'dist/a4' / a.design; out.mkdir(parents=True, exist_ok=True)
     pp, pq = build_pages(art)
     pp.save(out / 'print.pdf', save_all=True, append_images=[pq], resolution=DPI, quality=92)
@@ -298,27 +440,24 @@ def main():
     overview(tp, tq, out / 'overview.jpg')
     tp2, tq2 = textures(pp, pq, a.margin)
     overview(tp2, tq2, out / 'overview_printer_margin.jpg')
-    make_card().save(out / 'x_card.png')
-    make_back().save(out / 'back_card.png')
-    qr_image(CONF['qr_inside'], 40, rounded=True, logo=True).save(out / 'qr_x.png')
-    qr_image(CONF['qr_source'], 21).save(out / 'qr_source.png')
-    qr_image(CONF['qr_grow'], 25).save(out / 'qr_grow.png')
-    # QR の読み取り確認：印刷面を 45 度起こして読む（300/150 dpi）
-    detectors = [cv2.QRCodeDetector(), cv2.QRCodeDetectorAruco()]
+    half = lambda im: im.resize((im.width // CARD_RES, im.height // CARD_RES), Image.LANCZOS)
+    half(make_card(art['hexagon'], art['flat'])).save(out / 'x_card.png')
+    half(art.get('back') or make_back()).save(out / 'back_card.png')
+    half(art.get('tongue') or make_tongue(art['hexagon'])).save(out / 'tongue_card.png')
+    for name, key in (('qr_x', 'qr_inside'), ('qr_source', 'qr_source'), ('qr_grow', 'qr_grow')):
+        qr_alone(key).save(out / f'{name}.png')
+    # QR の読み取り確認：印刷面をそのまま・45 度起こして読む（300/150 dpi）
     res = {}
     for key, page_img in (('inside', pp), ('outside', pq)):
         found = set()
-        arr = np.asarray(page_img)[:, :, ::-1]
+        arr = np.asarray(page_img)
         for k in (1.0, 0.5):
             small = cv2.resize(arr, None, fx=k, fy=k, interpolation=cv2.INTER_AREA)
             h, w = small.shape[:2]
             for ang in (0, 45, -45):
                 M = cv2.getRotationMatrix2D((w / 2, h / 2), ang, 1.0)
                 rot = cv2.warpAffine(small, M, (w, h), borderValue=(255, 255, 255))
-                for det in detectors:
-                    ok, dec, _, _ = det.detectAndDecodeMulti(rot)
-                    if ok:
-                        found |= {f'{int(300 * k)}dpi {d}' for d in dec if d}
+                found |= {f'{int(300 * k)}dpi {r.text}' for r in zxingcpp.read_barcodes(rot) if r.text}
         res[key] = sorted(found)
     expected = {'inside': [CONF['qr_inside']], 'outside': [CONF['qr_source'], CONF['qr_grow']]}
     for side, urls in expected.items():
@@ -326,9 +465,8 @@ def main():
             for url in urls:
                 if f'{dpi}dpi {url}' not in res[side]:
                     raise RuntimeError(f'QR preflight failed: {side} {dpi}dpi {url}')
-    check = dict(cell_mm=round(CELL, 2), qr=res, quiet_zone_modules=QUIET,
-                 decoders=['OpenCV QRCodeDetector', 'OpenCV QRCodeDetectorAruco'],
-                 note='Union of decoder results at 0/45/-45 degrees. Physical phone scan is not simulated.')
+    check = dict(cell_mm=round(CELL, 2), qr=res, quiet_zone_modules=QUIET, decoders=['zxing-cpp'],
+                 note='Decoder union at 0/45/-45 degrees. See scan-sim.json for the print-and-camera simulation. Physical phone scan is not simulated.')
     (out / 'check.json').write_text(json.dumps(check, ensure_ascii=False, indent=2) + '\n')
     data = (out / 'print.pdf').read_bytes()
     page_count = len(re.findall(rb'/Type\s*/Page\b', data))
@@ -346,7 +484,7 @@ def main():
         media_boxes_points=boxes, page_order=['P inside', 'Q outside'], rasterized=True),
         fonts=['IBM Plex Sans JP', 'IBM Plex Sans'], qr=check,
         simulated_unprintable_margin_mm=a.margin,
-        physical_validation='Previous layout was home-printed and accepted by the user; new QR and typography require another physical scan.')
+        physical_validation='The earlier layout was home-printed and accepted by the user. The art QR codes and tongue need a physical print and phone scan.')
     (out / 'preflight.json').write_text(json.dumps(preflight, ensure_ascii=False, indent=2) + '\n')
     print(a.design, res)
 

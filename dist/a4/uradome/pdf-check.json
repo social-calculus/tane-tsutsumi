@@ -1,5 +1,5 @@
 {
-  "pdf_sha256": "cdb1bf6bd7a7de29210ebba344466ffcf97020c3127181a44a2635ed7f885e6e",
+  "pdf_sha256": "818b89b57a226adfda3e7e0449dcbd39104bc7c03f87354967c5dd3d4cfb0cb5",
   "renderer": "PyMuPDF",
   "pages": 2,
   "results": [
@@ -22,42 +22,21 @@
       "scans": [
         {
           "angle": 0,
-          "decoder": "QRCodeDetector",
-          "urls": [
-            "https://x.com/iwami_kankou"
-          ]
-        },
-        {
-          "angle": 0,
-          "decoder": "QRCodeDetectorAruco",
+          "decoder": "zxing-cpp",
           "urls": [
             "https://x.com/iwami_kankou"
           ]
         },
         {
           "angle": 45,
-          "decoder": "QRCodeDetector",
-          "urls": [
-            "https://x.com/iwami_kankou"
-          ]
-        },
-        {
-          "angle": 45,
-          "decoder": "QRCodeDetectorAruco",
+          "decoder": "zxing-cpp",
           "urls": [
             "https://x.com/iwami_kankou"
           ]
         },
         {
           "angle": -45,
-          "decoder": "QRCodeDetector",
-          "urls": [
-            "https://x.com/iwami_kankou"
-          ]
-        },
-        {
-          "angle": -45,
-          "decoder": "QRCodeDetectorAruco",
+          "decoder": "zxing-cpp",
           "urls": [
             "https://x.com/iwami_kankou"
           ]
@@ -83,42 +62,21 @@
       "scans": [
         {
           "angle": 0,
-          "decoder": "QRCodeDetector",
-          "urls": [
-            "https://x.com/iwami_kankou"
-          ]
-        },
-        {
-          "angle": 0,
-          "decoder": "QRCodeDetectorAruco",
+          "decoder": "zxing-cpp",
           "urls": [
             "https://x.com/iwami_kankou"
           ]
         },
         {
           "angle": 45,
-          "decoder": "QRCodeDetector",
-          "urls": [
-            "https://x.com/iwami_kankou"
-          ]
-        },
-        {
-          "angle": 45,
-          "decoder": "QRCodeDetectorAruco",
+          "decoder": "zxing-cpp",
           "urls": [
             "https://x.com/iwami_kankou"
           ]
         },
         {
           "angle": -45,
-          "decoder": "QRCodeDetector",
-          "urls": [
-            "https://x.com/iwami_kankou"
-          ]
-        },
-        {
-          "angle": -45,
-          "decoder": "QRCodeDetectorAruco",
+          "decoder": "zxing-cpp",
           "urls": [
             "https://x.com/iwami_kankou"
           ]
@@ -145,15 +103,7 @@
       "scans": [
         {
           "angle": 0,
-          "decoder": "QRCodeDetector",
-          "urls": [
-            "https://github.com/social-calculus/tane-tsutsumi",
-            "https://social-calculus.github.io/tane-tsutsumi/grow.html"
-          ]
-        },
-        {
-          "angle": 0,
-          "decoder": "QRCodeDetectorAruco",
+          "decoder": "zxing-cpp",
           "urls": [
             "https://github.com/social-calculus/tane-tsutsumi",
             "https://social-calculus.github.io/tane-tsutsumi/grow.html"
@@ -161,12 +111,7 @@
         },
         {
           "angle": 45,
-          "decoder": "QRCodeDetector",
-          "urls": []
-        },
-        {
-          "angle": 45,
-          "decoder": "QRCodeDetectorAruco",
+          "decoder": "zxing-cpp",
           "urls": [
             "https://github.com/social-calculus/tane-tsutsumi",
             "https://social-calculus.github.io/tane-tsutsumi/grow.html"
@@ -174,12 +119,7 @@
         },
         {
           "angle": -45,
-          "decoder": "QRCodeDetector",
-          "urls": []
-        },
-        {
-          "angle": -45,
-          "decoder": "QRCodeDetectorAruco",
+          "decoder": "zxing-cpp",
           "urls": [
             "https://github.com/social-calculus/tane-tsutsumi",
             "https://social-calculus.github.io/tane-tsutsumi/grow.html"
@@ -207,15 +147,7 @@
       "scans": [
         {
           "angle": 0,
-          "decoder": "QRCodeDetector",
-          "urls": [
-            "https://github.com/social-calculus/tane-tsutsumi",
-            "https://social-calculus.github.io/tane-tsutsumi/grow.html"
-          ]
-        },
-        {
-          "angle": 0,
-          "decoder": "QRCodeDetectorAruco",
+          "decoder": "zxing-cpp",
           "urls": [
             "https://github.com/social-calculus/tane-tsutsumi",
             "https://social-calculus.github.io/tane-tsutsumi/grow.html"
@@ -223,15 +155,7 @@
         },
         {
           "angle": 45,
-          "decoder": "QRCodeDetector",
-          "urls": [
-            "https://github.com/social-calculus/tane-tsutsumi",
-            "https://social-calculus.github.io/tane-tsutsumi/grow.html"
-          ]
-        },
-        {
-          "angle": 45,
-          "decoder": "QRCodeDetectorAruco",
+          "decoder": "zxing-cpp",
           "urls": [
             "https://github.com/social-calculus/tane-tsutsumi",
             "https://social-calculus.github.io/tane-tsutsumi/grow.html"
@@ -239,14 +163,7 @@
         },
         {
           "angle": -45,
-          "decoder": "QRCodeDetector",
-          "urls": [
-            "https://social-calculus.github.io/tane-tsutsumi/grow.html"
-          ]
-        },
-        {
-          "angle": -45,
-          "decoder": "QRCodeDetectorAruco",
+          "decoder": "zxing-cpp",
           "urls": [
             "https://github.com/social-calculus/tane-tsutsumi",
             "https://social-calculus.github.io/tane-tsutsumi/grow.html"
@@ -256,5 +173,5 @@
     }
   ],
   "physical_scan": false,
-  "note": "All URLs found by the union of decoder/angle results. This is not a phone or physical paper test."
+  "note": "All URLs found in the rendered PDF. This is not a phone or physical paper test; see scan-sim.json for the simulation."
 }

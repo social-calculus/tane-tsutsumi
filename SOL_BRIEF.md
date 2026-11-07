@@ -18,12 +18,13 @@ hands-exec pi /srv/hot/tane-tsutsumi-yakuho -- env \
   uv run python tools/build_a4.py uradome
 ```
 
-同じ実行環境で `tools/build_guide.py uradome`、`python -m unittest discover -s tools -p 'test_*.py'` も実行する。成果物は `dist/a4/uradome/`。
+同じ実行環境で `tools/build_guide.py uradome`、`python -m unittest discover -s tools -p 'test_*.py'` も実行する。QRを変えたら `tools/verify_pdf.py uradome`（要 `--group dev`）と `tools/scan_sim.py uradome` も実行する。成果物は `dist/a4/uradome/`。
 
 - `print.pdf`：300 dpi、A4 2ページ（内側→外側）。長辺とじ、100%、裁紙なし。
-- `overview.jpg`：各層の向きと絵。`overview_printer_margin.jpg`：既定4.5 mmの不可印幅の想定。
-- `x_card.png` と `back_card.png`：文字と3個のQRを原寸確認。
-- `check.json`：印刷面画像を300/150 dpiで復号。OpenCV標準とArucoの検出結果を併用する。二つのQRが近い背面ではArucoが必要になるため、標準デコーダだけで全コードが読めたとは書かない。
+- `overview.jpg`：各層の向きと絵。`flap_open.jpg`：ふたを上げて舌が見える状態。`overview_printer_margin.jpg`：既定4.5 mmの不可印幅の想定。
+- `x_card.png`、`back_card.png`、`tongue_card.png`：文字と3個のQRを原寸確認。
+- `check.json`：印刷面画像を300/150 dpiで zxing-cpp 復号。`pdf-check.json`：実際のPDFを再描画して復号。
+- `scan-sim.json`：印刷と撮影の模擬。zxing-cpp に、環境にあれば zbar と WeChat を加えて比べる。OpenCV標準は丸い位置検出パターンと2コード同時の画面が苦手なので合否に使わない。位置検出パターンの角丸を大きくすると zbar の成績が急に落ちるので、`EYE_RADII` を変えたら必ず測り直す。
 - `preflight.json`：入力の寸法・裁切・ハッシュ、PDFのページ数と寸法、フォント、検証境界。
 
 デジタル復号は実機のスマホや印刷品の検査ではない。新しいQRや文字位置を変更したら、本人に再度実物で見てもらう。原画、他人の未コミット変更、未選択の別柄を勝手に変更・削除しない。

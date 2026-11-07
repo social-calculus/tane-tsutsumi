@@ -72,6 +72,12 @@ def state_step1():
     return Sheet().fold(1, 0, 105, True)
 
 
+def state_flap_open():
+    """閉じた形から正面のふたを持ち上げた形。舌は折り上げたまま、Q 面を見せている"""
+    a, b, c = uv_line(0, 1, V6)
+    return state_strip().fold(a, b, c, True)
+
+
 def state_top_mountain():
     """3 を開き 4 だけ折った形で、V<V5 を裏側へ（写真 0818 は裏から見ている）"""
     s = state_after4_only()

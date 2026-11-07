@@ -14,8 +14,7 @@
   },
   "quiet_zone_modules": 4,
   "decoders": [
-    "OpenCV QRCodeDetector",
-    "OpenCV QRCodeDetectorAruco"
+    "zxing-cpp"
   ],
-  "note": "Union of decoder results at 0/45/-45 degrees. Physical phone scan is not simulated."
+  "note": "Decoder union at 0/45/-45 degrees. See scan-sim.json for the print-and-camera simulation. Physical phone scan is not simulated."
 }
