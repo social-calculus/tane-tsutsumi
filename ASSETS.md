@@ -1,12 +1,30 @@
-# 画像・図・ライセンス
+# 素材とライセンス
 
-3柄とも、1枚の連続した AI 生成画を紙の両面に使います。名所の小画像を貼り合わせたものではありません。QR・日本語・裁ち位置・折り図は別のベクター要素です。
+## 絵・型紙・文章
 
-- 原画：2026-11-06、Yuzu Gemini の `pro` で生成。プロンプトは [`designs/prompts.json`](designs/prompts.json)。外部写真の複写・トレースはしていません。
-- 公開画像：`designs/art/{umi,kani,eki}_scene.jpg`。ネイティブ1024 px。海の絵だけ生成された囲み罫を除くため周囲2.5%を裁ち、972 px。引き伸ばしやAI高解像度化はしていません。実効約125〜131 ppi、QRと文字はベクターです。コピー機での線・粒状感は試し刷りで確認します。
-- 実景の複合イメージ：浦富海岸の白い岩と松、松葉がに、赤瓦の岩美駅、岩井温泉。建物や位置関係を正確に記録したものではありません。
-- 折り構造の参照：[I Try DIY / Origami Square Envelope](https://itrydiy.me/2016/02/origami-square-envelope/)。参照先の写真・文章・ロゴは配布物に含めず、手順を独自に作図しています。`shots/*_closed.jpg` は構造模式図であり、実物写真でも紙の物理シミュレーションでもありません。
-- 日本語フォント：ビルド環境の Noto CJK（SIL Open Font License）。PDFにサブセット埋め込み。SVGの文字は編集可能なまま残しています。
-- `vendor/qrcode.js`：Kazuhiko Arase, QR Code Generator for JavaScript（MIT）。原作者のライセンス表記をファイル内に保持。
+CC BY 4.0 / SOCIAL CALCULUS。ライセンス本文は [LICENSE](LICENSE)。コードは [LICENSE-CODE](LICENSE-CODE) の MIT です。依存ライブラリには各ライセンスが適用されます。AIのみの出力に著作権が成立しない地域・範囲では、CC BYの条件もその範囲には及びません。岩美町の公式制作物ではありません。
 
-デザインは CC BY 4.0 / SOCIAL CALCULUS、コードは MIT。詳しくは [README](README.md#ライセンス)。
+- 現在の原画：`designs/a4/uradome/{front,scroll,hexagon,flat}.png`。本人がWeb GPTで生成して提供した4枚を、裁切・描き足し・AI拡大なしで使用しています。ピクセル寸法・SHA-256は `dist/a4/uradome/preflight.json`、元ファイルとの対応は `designs/a4/uradome/SOURCES.json`。
+- 風景・物産は絵としての複合イメージです。実景の位置関係や、物産の形を正確に示す資料ではありません。全開図の上四品・下四品と、帯の継ぎ目は本人が試刷りを見たうえで採用した構成です。
+- 折り方：本人のA4一枚折りを計算モデルにしたもの。192 mm正方形から作る旧風車式ではありません。実物写真・参照写真は配布データに含めません。展開・折り予想図は計算プレビューで、実物写真ではありません。
+- 赤印、折り線、文字、QR、背面表示はビルド時に追加。PDFは300 dpiのラスター画像2ページで、フォントを別途インストールしなくても印刷できます。
+
+## フォント
+
+日本語は **IBM Plex Sans JP**、英数字は **IBM Plex Sans**。いずれもIBM公式リポジトリの未改変 Regular / Medium を同梱しています。
+
+- 出典：[IBM/plex](https://github.com/IBM/plex)、取得リビジョン `48e8676114c04f29033b4b53da4ec579f8846297`。
+- 印刷用TTFとWeb用WOFF2：`vendor/fonts/`。
+- 著作権・SIL Open Font License 1.1：[日本語](vendor/fonts/OFL-JP.txt) / [英数字](vendor/fonts/OFL-Sans.txt)。フォント自体はCC BYではありません。
+
+## QR
+
+Segnoで静的URLをローカル生成します。第三者の短縮URL・有料動的QR・アクセス追跡は使いません。内側はIBM Plex SansのX字を入れた独自のアカウント紹介デザインで、X公式のプロフィールQRではありません。Xは各権利者の商標です。
+
+- 内側：`https://x.com/iwami_kankou`。データ部の角を柔らかくし、中央にX字、誤り訂正H。読み取りの基準になるパターンは標準形状のまま。
+- 背面左：GitHubの絵と型紙。背面右：本サイトのBig Max育て方。小さな2コードは標準形状・誤り訂正M。
+- 全コードに4モジュールの静区。デジタル復号は `check.json`、実物スマホでの読み取りは試刷りで別途確認します。
+
+## 栽培案内
+
+`grow.html` は **Big Max・観賞用・露地で大果**を狙うための文章です。品種資料と大学Extension等の大果栽培技術を参照し、本文末尾に出典と適用範囲を記載しています。資料の写真・図・本文の転載はありません。

@@ -1,0 +1,21 @@
+{
+  "cell_mm": 74.25,
+  "qr": {
+    "inside": [
+      "150dpi https://x.com/iwami_kankou",
+      "300dpi https://x.com/iwami_kankou"
+    ],
+    "outside": [
+      "150dpi https://github.com/social-calculus/tane-tsutsumi",
+      "150dpi https://social-calculus.github.io/tane-tsutsumi/grow.html",
+      "300dpi https://github.com/social-calculus/tane-tsutsumi",
+      "300dpi https://social-calculus.github.io/tane-tsutsumi/grow.html"
+    ]
+  },
+  "quiet_zone_modules": 4,
+  "decoders": [
+    "OpenCV QRCodeDetector",
+    "OpenCV QRCodeDetectorAruco"
+  ],
+  "note": "Union of decoder results at 0/45/-45 degrees. Physical phone scan is not simulated."
+}

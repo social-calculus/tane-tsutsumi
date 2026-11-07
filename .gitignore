@@ -4,3 +4,10 @@ __pycache__/
 designs/art/*.png
 .env
 *.sqlite
+refs/
+work/
+# Private photo/model checks and development-only artwork.
+designs/reference/
+designs/a4/_test/
+dist/a4/_test/
+dist/a4/verify_vs_photos.jpg

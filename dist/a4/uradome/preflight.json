@@ -1,0 +1,107 @@
+{
+  "design": "uradome",
+  "inputs": {
+    "front": {
+      "path": "designs/a4/uradome/front.png",
+      "pixels": [
+        1254,
+        1254
+      ],
+      "fitted_pixels": [
+        1254,
+        1254
+      ],
+      "cropped": false,
+      "sha256": "12cd5d863cee63fe0b4ae9b371458c5496420f04a965f5a998c74a4ac469a803"
+    },
+    "scroll": {
+      "path": "designs/a4/uradome/scroll.png",
+      "pixels": [
+        700,
+        1981
+      ],
+      "fitted_pixels": [
+        700,
+        1981
+      ],
+      "cropped": false,
+      "sha256": "1f139aff89a72352a73da840c788481aa558c0cf6dec4cb93b2150974841247c"
+    },
+    "hexagon": {
+      "path": "designs/a4/uradome/hexagon.png",
+      "pixels": [
+        1055,
+        1491
+      ],
+      "fitted_pixels": [
+        1055,
+        1491
+      ],
+      "cropped": false,
+      "sha256": "e691e4a35cdc1d9d3f13a8433a20c113e02ac20d022d0e543bafdd4e8b8aba70"
+    },
+    "flat": {
+      "path": "designs/a4/uradome/flat.png",
+      "pixels": [
+        1055,
+        1491
+      ],
+      "fitted_pixels": [
+        1055,
+        1491
+      ],
+      "cropped": false,
+      "sha256": "2797d484891b59777dc811a5c8066d42191cb29c7681d6c18d3306311c2501eb"
+    }
+  },
+  "pdf": {
+    "pages": 2,
+    "dpi": 300,
+    "media_boxes_points": [
+      [
+        0.0,
+        0.0,
+        595.2,
+        841.92
+      ],
+      [
+        0.0,
+        0.0,
+        595.2,
+        841.92
+      ]
+    ],
+    "page_order": [
+      "P inside",
+      "Q outside"
+    ],
+    "rasterized": true
+  },
+  "fonts": [
+    "IBM Plex Sans JP",
+    "IBM Plex Sans"
+  ],
+  "qr": {
+    "cell_mm": 74.25,
+    "qr": {
+      "inside": [
+        "150dpi https://x.com/iwami_kankou",
+        "300dpi https://x.com/iwami_kankou"
+      ],
+      "outside": [
+        "150dpi https://github.com/social-calculus/tane-tsutsumi",
+        "150dpi https://social-calculus.github.io/tane-tsutsumi/grow.html",
+        "300dpi https://github.com/social-calculus/tane-tsutsumi",
+        "300dpi https://social-calculus.github.io/tane-tsutsumi/grow.html"
+      ]
+    },
+    "quiet_zone_modules": 4,
+    "decoders": [
+      "OpenCV QRCodeDetector",
+      "OpenCV QRCodeDetectorAruco"
+    ],
+    "note": "Union of decoder results at 0/45/-45 degrees. Physical phone scan is not simulated."
+  },
+  "simulated_unprintable_margin_mm": 4.5,
+  "physical_validation": "Previous layout was home-printed and accepted by the user; new QR and typography require another physical scan."
+}

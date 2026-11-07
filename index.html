@@ -1,49 +1,28 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>岩美のたね — 一枚の絵を、ひと包みに。</title><link rel="icon" href="data:,">
-<meta name="description" content="岩美の風景を一枚に描いた、のりを使わない種の包み。絵と二つのQRをブラウザで差し替え、A4に印刷できます。">
-<style>
-:root{--ink:#263b3d;--paper:#faf5e9;--accent:#9b4b30}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:'Noto Serif CJK JP','Yu Mincho',serif}header,main,footer{max-width:1440px;margin:auto;padding:28px}header{border-bottom:1px solid #cec5b2}h1{font-size:34px;margin:4px 0 12px}h2{font-size:20px}p{line-height:1.8}a{color:var(--accent)}.eyebrow{font:12px sans-serif;letter-spacing:.15em}main{display:grid;grid-template-columns:310px 1fr;gap:30px}aside{align-self:start;background:#fffdf8;border:1px solid #ddd3c1;padding:20px;border-radius:3px}label{display:block;font-size:13px;margin:16px 0 6px}input,select,textarea,button{font:14px sans-serif;width:100%;padding:9px;border:1px solid #b9c4be;background:white;color:var(--ink)}textarea{font-size:12px;line-height:1.6}input[type=file]{font-size:12px}button{cursor:pointer;background:var(--ink);color:white;margin-top:12px;border:0}button.secondary{background:#e9e3d6;color:var(--ink)}small{display:block;font-size:12px;line-height:1.8;margin:10px 0}.previews{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-content:start}figure{margin:0}figcaption{font-size:13px;margin-bottom:8px}.previews svg{width:100%;height:auto;background:white;box-shadow:0 3px 12px #263b3d18}.links{display:flex;gap:16px;flex-wrap:wrap}.notice{padding:12px;border-left:3px solid #9b4b30;background:#f3eadd;font-size:13px}.error{color:#a00;font-size:13px}#print{display:none}footer{font-size:12px}details summary{cursor:pointer;font-size:14px;margin-top:18px} @media(max-width:900px){main{grid-template-columns:1fr}.previews{grid-template-columns:1fr}header,main,footer{padding:18px}}@page{size:A4 portrait;margin:0}@media print{body{background:white}header,main,footer{display:none}#print{display:block}#print>svg{display:block;width:210mm;height:297mm;break-after:page}#print>svg:last-child{break-after:auto}}
-</style></head><body>
-<header><span class="eyebrow">TOTTORI / IWAMI · OPEN DESIGN</span><h1>一枚の絵を、ひと包みに。</h1><p>岩美駅前で育ったかぼちゃから、次の庭へ。<br>三つの風景を、のりを使わない小さな「たとう包み」にしました。</p>
-<div class="links"><a href="dist/tane-tsutsumi_iwami_a4.pdf">印刷用 PDF（3柄・6ページ）</a><a href="dist/fold-guide.pdf">折り方・試し刷り</a><a href="dist/practice.pdf">原寸の練習用紙</a><a href="dist/source.zip">編集用一式 ZIP</a></div></header>
-<main><aside><h2>絵と QR を差し替える</h2><small>画像も入力内容も外部へ送信しません。ZIP を展開すればオフラインでも使えます。</small>
-<label for="design">柄</label><select id="design"></select>
-<label for="art">一枚の絵（正方形がおすすめ）</label><input id="art" type="file" accept="image/png,image/jpeg,image/webp">
-<label for="qrUrl">中央 QR の URL</label><input id="qrUrl" type="url">
-<label for="qrTitle">中央 QR の見出し（12文字まで）</label><input id="qrTitle" maxlength="12">
-<label for="qrNote">中央 QR の下の文字（24文字まで）</label><input id="qrNote" maxlength="24">
-<label for="licenseQr">小さい QR の URL（公開先）</label><input id="licenseQr" type="url">
-<details><summary>題・表示欄・保存</summary><label for="title">題（6文字まで）</label><input id="title" maxlength="6"><label for="label">表示欄（項目 | 内容、6行）</label><textarea id="label" rows="6"></textarea>
-<button id="save" class="secondary">編集内容を JSON に保存</button><label for="load">保存した JSON を読み込む</label><input id="load" type="file" accept="application/json"></details>
-<p class="error" id="error" role="alert"></p><button id="go">この柄を印刷 / PDF に保存</button><button id="all" class="secondary">3柄をまとめて印刷</button><button id="svg" class="secondary">この柄の編集用 SVG を保存</button>
-<small>A4・両面・長辺とじ・100%。裁断後 192 mm 角、折り上がり 64 mm 角。白いフチは裁ち落とします。フォント環境で文字幅が変わるため、正式印刷は配布 PDF を推奨します。</small>
-<div class="notice">紙の厚みと保持力は実物で確認します。11/8 は各柄1枚を試し刷りし、折り方 PDF の確認欄を使ってください。</div></aside>
-<section class="previews" id="previews"></section></main>
-<footer>絵・型紙・折り図：CC BY 4.0 / SOCIAL CALCULUS　コード：MIT<br>AI 生成の創作風景です。岩美町の公式制作物ではありません。<a href="https://github.com/social-calculus/tane-tsutsumi">GitHub・出典・ライセンス</a></footer>
-<div id="print"></div>
-<script src="vendor/qrcode.js"></script><script src="designs/art-data.js"></script><script src="designs/designs.js"></script><script src="tane.js"></script><script>
-if(location.protocol==='file:')document.querySelector('a[href="dist/source.zip"]').hidden=true;
-const $=id=>document.getElementById(id), designs=structuredClone(TANE_DESIGNS), base=structuredClone(TANE_DEFAULTS);
-const fields=['qrUrl','qrTitle','qrNote','licenseQr','title'];
-const current=()=>designs.find(d=>d.id===$('design').value)||designs[0];
-function populate(){for(const k of fields)$(k).value=base[k];$('label').value=base.label.map(x=>x.join(' | ')).join('\n')}
-function validate(){for(const key of ['qrUrl','licenseQr']){const u=new URL(base[key]);if(!['http:','https:'].includes(u.protocol))throw Error('QR の URL は https:// または http:// で始めてください。');if(base[key].length>90)throw Error('QR の URL は90文字以内にしてください。')}if(base.label.length!==6||base.label.some(([k,v])=>!k||!v||k.length>5||v.length>17))throw Error('表示欄は6行、項目5文字以内・内容17文字以内です。');if(base.title.length>6||base.qrTitle.length>12||base.qrNote.length>24||[...base.qrNote].reduce((n,c)=>n+(c.charCodeAt(0)<128 ? 0.6 : 1),0)>16)throw Error('文字数が多すぎます（QR下の文字は全角16文字相当まで）。')}
-function render(){try{validate();$('error').textContent='';$('previews').innerHTML=`<figure><figcaption>A 面 / 開いたときの一枚絵</figcaption>${TANE.page('inside',current(),base,'preview-a')}</figure><figure><figcaption>B 面 / 折ったときの外側</figcaption>${TANE.page('outside',current(),base,'preview-b')}</figure>`;return true}catch(e){$('error').textContent=e.message;return false}}
-function printPages(list){$('print').innerHTML=list.map((d,i)=>TANE.page('inside',d,base,'a'+i)+TANE.page('outside',d,base,'b'+i)).join('')}
-async function readyImages(){await document.fonts.ready;await Promise.all([...document.querySelectorAll('#print image')].map(e=>new Promise((resolve,reject)=>{const i=new Image();i.onload=resolve;i.onerror=()=>reject(Error('画像を読み込めません'));i.src=e.getAttribute('href')})))}
-async function print(list){if(!render())return;printPages(list);await readyImages();window.print()}
-function download(data,name,type){const u=URL.createObjectURL(new Blob([data],{type})),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
-async function dataImage(src){if(src.startsWith('data:'))return src;if(window.TANE_ART_DATA?.[src])return window.TANE_ART_DATA[src];const img=new Image();img.src=src;await img.decode();const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;c.getContext('2d').drawImage(img,0,0);return c.toDataURL('image/png')}
-for(const d of designs)$('design').add(new Option(d.name,d.id));$('design').onchange=()=>{$('art').value='';render()};populate();
-for(const k of fields)$(k).oninput=()=>{base[k]=$(k).value;render()};
-$('label').oninput=()=>{base.label=$('label').value.split('\n').map(s=>s.split('|').map(x=>x.trim()));render()};
-$('art').onchange=async()=>{const f=$('art').files[0];if(!f)return;const reader=new FileReader();reader.onload=()=>{current().art=reader.result;render()};reader.readAsDataURL(f)};
-$('go').onclick=()=>print([current()]);$('all').onclick=()=>print(designs);
-$('save').onclick=async()=>{if(!render())return;const saved=await Promise.all(designs.map(async d=>({...d,art:await dataImage(d.art)})));download(JSON.stringify({base,designs:saved},null,2),'tane-settings.json','application/json')};
-$('load').onchange=async()=>{try{const data=JSON.parse(await $('load').files[0].text());if(!data.base||!Array.isArray(data.designs)||data.designs.length!==3||data.designs.some(d=>typeof d.art!=='string'||!/^data:image\/(png|jpeg|webp);base64,/.test(d.art)))throw Error('このツールで保存した画像埋め込み JSON を選んでください。');const old=structuredClone(base);Object.assign(base,data.base);try{validate()}catch(e){Object.assign(base,old);throw e}for(let i=0;i<3;i++){if(typeof data.designs[i].art!=='string')throw Error('画像がありません');designs[i].art=data.designs[i].art}populate();render()}catch(e){$('error').textContent=e.message}};
-$('svg').onclick=async()=>{if(!render())return;const d={...current(),art:await dataImage(current().art)};for(const s of ['inside','outside'])download(TANE.page(s,d,base,'export-'+s),`${d.id}-${s}.svg`,'image/svg+xml')};
-render();window.TANE_APP={designs,base,printPages,readyImages};
-if(new URLSearchParams(location.search).has('all')) printPages(designs);
-window.TANE_READY=true;
-</script></body></html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>岩美のたね — 一枚の絵を、ひと包みに。</title>
+<meta name="description" content="A4を切らずに折る、小さな種の包み。浦富海岸の絵と、観賞用かぼちゃ Big Max の育て方。印刷用PDF・原画・型紙を公開しています。">
+<link rel="stylesheet" href="site.css"><link rel="icon" href="data:,">
+</head>
+<body>
+<header><div class="topbar"><a class="brand" href="./">岩美のたね</a><nav aria-label="メイン"><a href="grow.html">育て方</a><a href="https://github.com/social-calculus/tane-tsutsumi">GitHub</a></nav></div></header>
+<main>
+<section class="hero">
+<div class="eyebrow">IWAMI / SEEDS &amp; SCENERY</div>
+<h1>一枚の絵を、<br>ひと包みに。</h1>
+<p class="lead">A4を切らずに折る、7.4 cm角の小さな種の包み。<br>開くたびに、浦富海岸と岩美八宝の絵が現れます。</p>
+<p class="muted">中身は、岩美駅前で採れた観賞用かぼちゃ <span lang="en">Big Max</span> の種、3粒。<br>のり・はさみ・シールなしで、最後の舌を差し込みます。</p>
+<div class="actions"><a class="button primary" href="dist/a4/uradome/print.pdf">印刷用PDF · 2ページ</a><a class="button" href="grow.html">Big Max の育て方</a></div>
+</section>
+<figure class="panorama"><a href="dist/a4/uradome/overview.jpg"><img src="dist/a4/uradome/overview.jpg" alt="閉じた表と裏、長い巻物、六角形、全開の内側と外側。開くたびに現れる六つの画面" width="2135" height="746"></a><figcaption>折り上がりから全開までの計算プレビュー。実際の写真ではありません。</figcaption></figure>
+<section class="section" id="print"><h2>印刷して、折る。</h2>
+<div class="grid"><div class="panel"><h3>印刷設定</h3><ul><li>A4・両面・<strong>長辺とじ</strong></li><li><strong>実際のサイズ／100%</strong>。「用紙に合わせる」は使わない</li><li>1ページ目が内側、2ページ目が外側</li><li>紙は切らず、そのまま折る</li></ul><p class="note">ふちなし印刷は不要。紙端の白い部分は、開いた絵の中に白線として残ります。まず1枚で表裏位置とQRを確認してください。</p><a href="dist/a4/uradome/overview_printer_margin.jpg">紙端4.5 mmが印刷できない場合の予想図</a></div>
+<div class="panel"><h3>折る順番</h3><ol><li>内側を上にし、四つの角を折り込む。</li><li>赤い角印を目印に、二つの長い辺を順に折って巻物状にする。</li><li>種の小袋を中央に置き、上の四角を折る。</li><li>下の舌を、手前の折りの下へ差し込む。</li></ol><p><a href="dist/a4/uradome/fold-guide.pdf">図入りの折り方 · PDF</a></p><p class="note">ばらの種を直接入れず、内袋を使います。包みは観賞用・配布用で、食品の包装ではありません。</p></div></div>
+</section>
+<section class="section"><h2>畑で、一株一果。</h2><p>ビッグマックスは、見て楽しむ大きなかぼちゃ。十分な広さの畑で、最後は一株に良い実を一つだけ残し、大きな一玉を目指します。</p><p><a href="grow.html">岩美向け・露地の大果づくりを読む →</a></p></section>
+<section class="section"><h2>使う・つくり替える。</h2><p>現在の公開柄は浦富海岸。原画4枚と、折り目に合わせて切り分け・配置するビルドツールも公開しています。絵と型紙は <a href="LICENSE">CC BY 4.0</a>、コードは <a href="LICENSE-CODE">MIT</a>。フォントはIBM Plex Sans JP / IBM Plex Sans（OFL）です。</p><p><a href="https://github.com/social-calculus/tane-tsutsumi">ソースと原画</a> · <a href="ASSETS.md">素材とライセンス</a> · <a href="https://x.com/iwami_kankou">岩美町の中の人 · X</a></p><p class="note">絵は本人がWeb GPTで生成したイメージです。風景・物産の位置関係や形を正確に記録した資料ではありません。</p></section>
+</main>
+<footer><p>SOCIAL CALCULUS · 岩美のたね</p><p>絵・型紙 CC BY 4.0 / コード MIT</p></footer>
+</body></html>

@@ -1,0 +1,260 @@
+{
+  "pdf_sha256": "cdb1bf6bd7a7de29210ebba344466ffcf97020c3127181a44a2635ed7f885e6e",
+  "renderer": "PyMuPDF",
+  "pages": 2,
+  "results": [
+    {
+      "page": 1,
+      "dpi": 150,
+      "pixels": [
+        1240,
+        1754
+      ],
+      "media_box_points": [
+        0.0,
+        0.0,
+        595.2000122070312,
+        841.9199829101562
+      ],
+      "urls": [
+        "https://x.com/iwami_kankou"
+      ],
+      "scans": [
+        {
+          "angle": 0,
+          "decoder": "QRCodeDetector",
+          "urls": [
+            "https://x.com/iwami_kankou"
+          ]
+        },
+        {
+          "angle": 0,
+          "decoder": "QRCodeDetectorAruco",
+          "urls": [
+            "https://x.com/iwami_kankou"
+          ]
+        },
+        {
+          "angle": 45,
+          "decoder": "QRCodeDetector",
+          "urls": [
+            "https://x.com/iwami_kankou"
+          ]
+        },
+        {
+          "angle": 45,
+          "decoder": "QRCodeDetectorAruco",
+          "urls": [
+            "https://x.com/iwami_kankou"
+          ]
+        },
+        {
+          "angle": -45,
+          "decoder": "QRCodeDetector",
+          "urls": [
+            "https://x.com/iwami_kankou"
+          ]
+        },
+        {
+          "angle": -45,
+          "decoder": "QRCodeDetectorAruco",
+          "urls": [
+            "https://x.com/iwami_kankou"
+          ]
+        }
+      ]
+    },
+    {
+      "page": 1,
+      "dpi": 300,
+      "pixels": [
+        2480,
+        3508
+      ],
+      "media_box_points": [
+        0.0,
+        0.0,
+        595.2000122070312,
+        841.9199829101562
+      ],
+      "urls": [
+        "https://x.com/iwami_kankou"
+      ],
+      "scans": [
+        {
+          "angle": 0,
+          "decoder": "QRCodeDetector",
+          "urls": [
+            "https://x.com/iwami_kankou"
+          ]
+        },
+        {
+          "angle": 0,
+          "decoder": "QRCodeDetectorAruco",
+          "urls": [
+            "https://x.com/iwami_kankou"
+          ]
+        },
+        {
+          "angle": 45,
+          "decoder": "QRCodeDetector",
+          "urls": [
+            "https://x.com/iwami_kankou"
+          ]
+        },
+        {
+          "angle": 45,
+          "decoder": "QRCodeDetectorAruco",
+          "urls": [
+            "https://x.com/iwami_kankou"
+          ]
+        },
+        {
+          "angle": -45,
+          "decoder": "QRCodeDetector",
+          "urls": [
+            "https://x.com/iwami_kankou"
+          ]
+        },
+        {
+          "angle": -45,
+          "decoder": "QRCodeDetectorAruco",
+          "urls": [
+            "https://x.com/iwami_kankou"
+          ]
+        }
+      ]
+    },
+    {
+      "page": 2,
+      "dpi": 150,
+      "pixels": [
+        1240,
+        1754
+      ],
+      "media_box_points": [
+        0.0,
+        0.0,
+        595.2000122070312,
+        841.9199829101562
+      ],
+      "urls": [
+        "https://github.com/social-calculus/tane-tsutsumi",
+        "https://social-calculus.github.io/tane-tsutsumi/grow.html"
+      ],
+      "scans": [
+        {
+          "angle": 0,
+          "decoder": "QRCodeDetector",
+          "urls": [
+            "https://github.com/social-calculus/tane-tsutsumi",
+            "https://social-calculus.github.io/tane-tsutsumi/grow.html"
+          ]
+        },
+        {
+          "angle": 0,
+          "decoder": "QRCodeDetectorAruco",
+          "urls": [
+            "https://github.com/social-calculus/tane-tsutsumi",
+            "https://social-calculus.github.io/tane-tsutsumi/grow.html"
+          ]
+        },
+        {
+          "angle": 45,
+          "decoder": "QRCodeDetector",
+          "urls": []
+        },
+        {
+          "angle": 45,
+          "decoder": "QRCodeDetectorAruco",
+          "urls": [
+            "https://github.com/social-calculus/tane-tsutsumi",
+            "https://social-calculus.github.io/tane-tsutsumi/grow.html"
+          ]
+        },
+        {
+          "angle": -45,
+          "decoder": "QRCodeDetector",
+          "urls": []
+        },
+        {
+          "angle": -45,
+          "decoder": "QRCodeDetectorAruco",
+          "urls": [
+            "https://github.com/social-calculus/tane-tsutsumi",
+            "https://social-calculus.github.io/tane-tsutsumi/grow.html"
+          ]
+        }
+      ]
+    },
+    {
+      "page": 2,
+      "dpi": 300,
+      "pixels": [
+        2480,
+        3508
+      ],
+      "media_box_points": [
+        0.0,
+        0.0,
+        595.2000122070312,
+        841.9199829101562
+      ],
+      "urls": [
+        "https://github.com/social-calculus/tane-tsutsumi",
+        "https://social-calculus.github.io/tane-tsutsumi/grow.html"
+      ],
+      "scans": [
+        {
+          "angle": 0,
+          "decoder": "QRCodeDetector",
+          "urls": [
+            "https://github.com/social-calculus/tane-tsutsumi",
+            "https://social-calculus.github.io/tane-tsutsumi/grow.html"
+          ]
+        },
+        {
+          "angle": 0,
+          "decoder": "QRCodeDetectorAruco",
+          "urls": [
+            "https://github.com/social-calculus/tane-tsutsumi",
+            "https://social-calculus.github.io/tane-tsutsumi/grow.html"
+          ]
+        },
+        {
+          "angle": 45,
+          "decoder": "QRCodeDetector",
+          "urls": [
+            "https://github.com/social-calculus/tane-tsutsumi",
+            "https://social-calculus.github.io/tane-tsutsumi/grow.html"
+          ]
+        },
+        {
+          "angle": 45,
+          "decoder": "QRCodeDetectorAruco",
+          "urls": [
+            "https://github.com/social-calculus/tane-tsutsumi",
+            "https://social-calculus.github.io/tane-tsutsumi/grow.html"
+          ]
+        },
+        {
+          "angle": -45,
+          "decoder": "QRCodeDetector",
+          "urls": [
+            "https://social-calculus.github.io/tane-tsutsumi/grow.html"
+          ]
+        },
+        {
+          "angle": -45,
+          "decoder": "QRCodeDetectorAruco",
+          "urls": [
+            "https://github.com/social-calculus/tane-tsutsumi",
+            "https://social-calculus.github.io/tane-tsutsumi/grow.html"
+          ]
+        }
+      ]
+    }
+  ],
+  "physical_scan": false,
+  "note": "All URLs found by the union of decoder/angle results. This is not a phone or physical paper test."
+}

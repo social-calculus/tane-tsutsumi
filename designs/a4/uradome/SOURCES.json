@@ -1,0 +1,11 @@
+{
+  "artwork": "Web GPT images supplied and approved by the project owner",
+  "modifications": "None to the source pixels. The build adds text, seal, folds and QR separately.",
+  "files": {
+    "front.png": {"original_name": "浦富海岸の静謐な水彩風景.png", "pixels": [1254, 1254]},
+    "scroll.png": {"original_name": "iwami_long_scroll_1x2_83.png", "pixels": [700, 1981]},
+    "hexagon.png": {"original_name": "松林と波間の静かな入り江.png", "pixels": [1055, 1491]},
+    "flat.png": {"original_name": "石見八宝を描く海辺の浮世絵.png", "pixels": [1055, 1491]}
+  },
+  "license": "CC BY 4.0 / SOCIAL CALCULUS"
+}
