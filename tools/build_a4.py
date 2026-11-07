@@ -289,14 +289,11 @@ def fold_line(arr, side, p0, p1, on=3.0, off=2.0, width=0.3):
         arr[y_min:y_max, x_min:x_max] = roi * (1 - mask) + color * mask
 
 
-def corner_mark(arr):
-    """内側（岩美町の中の人の X QR がある面）の見た目右上。直角を紙の角に置き、上辺と右辺に隙間なく沿わせる。"""
-    h, w = arr.shape[:2]
-    leg = int(round(12 * PX))
-    yy, xx = np.ogrid[:h, :w]
-    # 右上の画素が直角。紙端の列と行は完全に塗る（アンチエイリアスで薄めない）
-    mask = ((w - 1 - xx) + yy) <= leg
-    arr[mask] = np.array(RED, np.float32)
+def corner_mark(arr, side):
+    """向きの印（IC チップの 1 番ピンの角）。紙の同じ隅に両面で入れる"""
+    tri = [(SAFE + 1, L - SAFE - 1), (SAFE + 13, L - SAFE - 1), (SAFE + 1, L - SAFE - 13)]
+    pts = np.array([_xy(side, *p) for p in tri], np.int32)
+    cv2.fillPoly(arr, [pts], RED, cv2.LINE_AA)
 
 
 def add_guides(page_p, page_q):
@@ -317,7 +314,8 @@ def add_guides(page_p, page_q):
         fold_line(page_q, 'Q', from_uv(U3 + 1, v), from_uv(U3 + 12, v), on=2.5, off=1.5)
     fold_line(page_q, 'Q', from_uv(U4, 201), from_uv(U4 - 9, 210), on=2.0, off=1.2)
     fold_line(page_q, 'Q', from_uv(U3, 201), from_uv(U3 + 9, 210), on=2.0, off=1.2)
-    corner_mark(page_p)
+    corner_mark(page_p, 'P')
+    corner_mark(page_q, 'Q')
 
 
 def build_pages(art):
