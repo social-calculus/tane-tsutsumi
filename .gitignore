@@ -11,3 +11,5 @@ designs/reference/
 designs/a4/_test/
 dist/a4/_test/
 dist/a4/verify_vs_photos.jpg
+# 印刷所向け入稿データ（PSD 約50 MB×2）。tools/build_printshop.py で作り直せる
+dist/a4/*/printshop/

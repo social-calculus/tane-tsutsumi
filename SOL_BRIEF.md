@@ -20,6 +20,8 @@ hands-exec pi /srv/hot/tane-tsutsumi -- env \
 
 同じ実行環境で `tools/build_guide.py uradome`、`python -m unittest discover -s tools -p 'test_*.py'` も実行する。QRを変えたら `tools/verify_pdf.py uradome`（要 `--group dev`）と `tools/scan_sim.py uradome` も実行する。成果物は `dist/a4/uradome/`。
 
+印刷所に出すときは、同じ環境で `tools/build_printshop.py uradome` を実行する（ICCは既定で `/srv/data/kamihikoki/print/icc/JapanColor2001Coated.icc`、`--profile` で変える）。プリントパックのPhotoshop入稿に合わせてあり、片面1ファイル・216×303 mm（塗り足し3 mm）・350 ppi・CMYK・総インキ量300%以下・統合済みPSD。両面とも画像の上が天で、天と天を合わせる（同社の縦型の標準と同じ）。成果物は `dist/a4/uradome/printshop/`（Git外）：`1_omote_uchigawa.psd`（表＝内側）、`2_ura_sotogawa.psd`（裏＝外側）、入稿用zip、確認用 `proof_*.jpg`、`printshop.json`（寸法・総インキ量・QR・PSD読み戻し）。札とQRは600 dpiで作ってから引くので、350 ppiにしても配置は300 dpiのA4と同じ（`test_bleed_page_matches_a4_inside_trim`）。
+
 - `print.pdf`：300 dpi、A4 2ページ（内側→外側）。長辺とじ、100%、裁紙なし。
 - `overview.jpg`：各層の向きと絵。`flap_open.jpg`：ふたを上げて舌が見える状態。`overview_printer_margin.jpg`：既定4.5 mmの不可印幅の想定。
 - `x_card.png`、`back_card.png`、`tongue_card.png`：文字と3個のQRを原寸確認。

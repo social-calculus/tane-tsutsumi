@@ -2,29 +2,30 @@
 
 ## 現在
 
-完成。公開の `print.pdf` が正本で、デザインはここで止める。ローカルの正本は `/srv/archive/tane-tsutsumi`（`main`）。`/srv/hot` の副本と `yakuho` 作業樹は捨てた。未公開の下書きと参照写真は公開していない。
+完成。デザインはここで止める。ローカル正本は `/srv/archive/tane-tsutsumi`（`main`、GitHub と同期）。未公開の下書きと参照写真は公開していない。
+
+- 赤い角印：内側（岩美町の中の人の X QR がある面）の右上だけ。直角を紙の角に合わせ、上辺・右辺に隙間なく沿わせる（辺 12 mm）。外側には入れない。2026-11-10 本人指示。11/7 に一度入れて戻した紙端版は、家庭用プリンターでは紙端が刷れず角印が欠ける。今回は印刷所のふちなしで刷るので採用。
+- 今回の再ビルドは、11/7 採用版 PDF（`e07965542674e65b0555061328b3ca2e`）と比べて角の周り以外は 1 画素も変わっていない。折り順・絵・文言・QR はそのまま。
+- 印刷所入稿：`tools/build_printshop.py` が プリントパック の Photoshop 入稿仕様（片面 1 ファイル、216×303 mm、350 ppi、CMYK、総インキ量 300% 以下、統合済み、天と天）で PSD 2 枚と zip を `dist/a4/uradome/printshop/` に作る（Git 外）。
 
 印刷物：
 
-- 公開：<https://social-calculus.github.io/tane-tsutsumi/dist/a4/uradome/print.pdf>
-- 折り方：同じ場所の `fold-guide.pdf`。A4両面・長辺とじ・100%・裁紙なし。1ページ目が内側。
-- 赤い角印は、紙端へ寄せる前の採用版に戻した。両面の同じ隅、端から約 7 mm。紙端へ移した版は全体の見え方がずれたため破棄。
-- 折り順・絵・文言・QR の中身は、採用版から変えていない。
-
-中身は Big Max 由来・観賞用・3粒。育て方は岩美の露地で大果を狙う案内。日本語は IBM Plex Sans JP、英数字は IBM Plex Sans。
+- 公開：<https://social-calculus.github.io/tane-tsutsumi/dist/a4/uradome/print.pdf>（A4・塗り足しなし・RGB 300 dpi）。家庭用でも折れるが、紙端が白く残り角印は欠ける。
+- 折り方：同じ場所の `fold-guide.pdf`。1 ページ目が内側。手順 1・3 は「右上の赤い角印」を目印にする（折り 3 の線 x+y=297 と同じ側）。
 
 ## 入口
 
 - 公開ページ：<https://social-calculus.github.io/tane-tsutsumi/>、栽培案内：`grow.html`。
-- 原画：`designs/a4/uradome/` の4枚。権利とフォントは `ASSETS.md`。ビルド手順は `SOL_BRIEF.md`。
-- 赤印は `tools/build_a4.py` の `corner_mark`。文言と QR は同ファイル冒頭の `CONF`・`X_QR`・`TONGUE_QR`。
+- 原画：`designs/a4/uradome/` の 4 枚。権利とフォントは `ASSETS.md`。ビルドと入稿の手順は `SOL_BRIEF.md`。
+- 角印は `tools/build_a4.py` の `corner_mark`、塗り足しと解像度は `Grid`。文言と QR は同ファイル冒頭の `CONF`・`X_QR`・`TONGUE_QR`。
 
 ## 検証と注意
 
-- 公開する `print.pdf` は、紙端へ赤印を移す前に本人が採用したファイルと同一（ハッシュ `e07965542674e65b0555061328b3ca2e`）。作り直さず、その版をそのまま戻した。
-- 家庭用プリンターは紙端約 4.5 mm を刷れないことがある。採用版の赤印はその内側にある。
+- 印刷所 PSD：Pillow・psd-tools で読み戻し一致（CMYK 8 bit、レイヤーなし、350 ppi、Japan Color 2001 Coated 埋め込み）。総インキ量は最大 300.0%。CMYK を画面色に戻した確認画像で 3 個の QR を 300/150 dpi 相当・0/±45 度で復号。塗り足しは絵を鏡映しで延ばし、角印は斜辺ごと外へ延ばす。実物の印刷・断裁ずれ・スマホ読み取りは未確認。
+- PSD の CMYK は 0＝版いっぱいの反転値で書く（Pillow・psd-tools・Photoshop 共通）。逆にすると陰画になる。
+- Hands の claude 槽には zbar・WeChat の復号器がない。`scan-sim.json` は QR が変わっていないので pi 槽で測った 11/7 の値のまま。
 - push は `GITHUB_TOKEN` を `source-agent-env.sh` で読み、非対話で認証する。トークンをファイルや remote URL に残さない。
 
 ## 次
 
-なし
+- 印刷所の納品物で、角印が紙の角まで届いているか・3 個の QR・折りを確かめる。担当：本人、11/14 の会場前。

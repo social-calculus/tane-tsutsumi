@@ -242,26 +242,39 @@ def qr_alone(key):
 
 
 def sampler(img):
+    """枠の外は鏡に映して続ける。A4 の端の画素は 1 画素以内なので端の複製と同じ値、塗り足しでは絵が自然に続く"""
     a = np.asarray(img.convert('RGB'), dtype=np.float32)
     h, w = a.shape[:2]
 
     def f(sx, sy):
-        return cv2.remap(a, (sx * w - 0.5).astype(np.float32), (sy * h - 0.5).astype(np.float32), cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
+        return cv2.remap(a, (sx * w - 0.5).astype(np.float32), (sy * h - 0.5).astype(np.float32), cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT)
     return f
 
 
 SAFE = 6.0  # 複合機が確実に刷れる端からの距離（mm）
+CORNER_MM = 12.0  # 向きの赤い直角三角の辺の長さ
 
 
-def _xy(side, x, y):
-    return ((x if side == 'P' else W - x) * PX, (L - y) * PX)
+class Grid:
+    """印刷面の画素格子。px は 1 mm の画素数、bleed は仕上がりの外へ足す塗り足し（mm）。
+    既定（300 dpi・塗り足しなし）は公開している A4 の print.pdf と同じ格子"""
+    def __init__(self, dpi=DPI, bleed=0.0):
+        self.px, self.bleed = dpi / 25.4, bleed
+        self.w, self.h = int(round((W + 2 * bleed) * self.px)), int(round((L + 2 * bleed) * self.px))
+
+
+A4 = Grid()
+
+
+def _xy(side, x, y, g=A4):
+    return (((x if side == 'P' else W - x) + g.bleed) * g.px, (L - y + g.bleed) * g.px)
 
 
 def _safe(x, y):
     return SAFE <= x <= W - SAFE and SAFE <= y <= L - SAFE
 
 
-def fold_line(arr, side, p0, p1, on=3.0, off=2.0, width=0.3):
+def fold_line(arr, side, p0, p1, on=3.0, off=2.0, width=0.3, g=A4):
     """折り線。下の絵の明るさに合わせて濃淡を変え、絵を邪魔しない細い破線にする"""
     (x0, y0), (x1, y1) = p0, p1
     length = math.hypot(x1 - x0, y1 - y0)
@@ -269,7 +282,7 @@ def fold_line(arr, side, p0, p1, on=3.0, off=2.0, width=0.3):
         return
     h, w = arr.shape[:2]
     t = 0.0
-    th = max(1, int(round(width * PX)))
+    th = max(1, int(round(width * g.px)))
     while t < length:
         e = min(t + on, length)
         a = (x0 + (x1 - x0) * t / length, y0 + (y1 - y0) * t / length)
@@ -277,7 +290,7 @@ def fold_line(arr, side, p0, p1, on=3.0, off=2.0, width=0.3):
         t = e + off
         if not (_safe(*a) and _safe(*b)):
             continue
-        pa, pb = _xy(side, *a), _xy(side, *b)
+        pa, pb = _xy(side, *a, g), _xy(side, *b, g)
         x_min, x_max = int(max(min(pa[0], pb[0]) - 3, 0)), int(min(max(pa[0], pb[0]) + 4, w))
         y_min, y_max = int(max(min(pa[1], pb[1]) - 3, 0)), int(min(max(pa[1], pb[1]) + 4, h))
         roi = arr[y_min:y_max, x_min:x_max]
@@ -289,38 +302,46 @@ def fold_line(arr, side, p0, p1, on=3.0, off=2.0, width=0.3):
         arr[y_min:y_max, x_min:x_max] = roi * (1 - mask) + color * mask
 
 
-def corner_mark(arr, side):
-    """向きの印（IC チップの 1 番ピンの角）。紙の同じ隅に両面で入れる"""
-    tri = [(SAFE + 1, L - SAFE - 1), (SAFE + 13, L - SAFE - 1), (SAFE + 1, L - SAFE - 13)]
-    pts = np.array([_xy(side, *p) for p in tri], np.int32)
-    cv2.fillPoly(arr, [pts], RED, cv2.LINE_AA)
+def corner_mark(arr, g=A4):
+    """向きの印。X の QR がある内側（P）の右上だけに置く。直角を仕上がりの角に合わせ、上辺と右辺に隙間なく沿わせる。
+    塗り足しがあるときは斜辺をそのまま外へ延ばすので、断裁が少しずれても紙の角まで赤が残る"""
+    reach = CORNER_MM + g.bleed + 1  # 塗り足しの中では斜辺が仕上がり線から塗り足しの幅だけ長く延びる
+    x0 = max(0, int((W + g.bleed - reach) * g.px))
+    y1 = min(arr.shape[0], int((g.bleed + reach) * g.px) + 1)
+    xs = W - ((np.arange(x0, arr.shape[1]) + 0.5) / g.px - g.bleed)   # 右の仕上がり線から内向きの距離（mm）
+    ys = (np.arange(y1) + 0.5) / g.px - g.bleed                        # 上の仕上がり線から内向きの距離（mm）
+    d = (CORNER_MM - (xs[None, :] + ys[:, None])) / math.sqrt(2) * g.px  # 斜辺までの距離（画素）
+    a = np.clip(d + 0.5, 0, 1)[:, :, None].astype(np.float32)
+    roi = arr[:y1, x0:]
+    arr[:y1, x0:] = roi * (1 - a) + np.array(RED, np.float32) * a
 
 
-def add_guides(page_p, page_q):
+def add_guides(page_p, page_q, g=A4):
     # 内側：四隅の折り線は両端だけ（全開の絵を横切らない）
     for start, end in (((105, L), (0, 192)), ((105, L), (W, 192)), ((105, 0), (0, 105)), ((105, 0), (W, 105))):
         d = math.hypot(end[0] - start[0], end[1] - start[1])
         ux, uy = (end[0] - start[0]) / d, (end[1] - start[1]) / d
         for a, b in ((0, 34), (d - 34, d)):
-            fold_line(page_p, 'P', (start[0] + ux * a, start[1] + uy * a), (start[0] + ux * b, start[1] + uy * b))
+            fold_line(page_p, 'P', (start[0] + ux * a, start[1] + uy * a), (start[0] + ux * b, start[1] + uy * b), g=g)
     # 内側：中帯の 3 と 4 の線。QR の両脇に来る
-    fold_line(page_p, 'P', (105, 192), (192, 105))
-    fold_line(page_p, 'P', (0, 192), (87, 105))
+    fold_line(page_p, 'P', (105, 192), (192, 105), g=g)
+    fold_line(page_p, 'P', (0, 192), (87, 105), g=g)
     # 外側：左上の隅の翼にある 3 の線（六角形で中心から星の辺の中点まで）
-    fold_line(page_q, 'Q', (17, L - 17), (52.5, 244.5))
+    fold_line(page_q, 'Q', (17, L - 17), (52.5, 244.5), g=g)
     # 外側：長条の両端に 5 と 6 の目印、舌の先の角
     for v in (V5, V6):
-        fold_line(page_q, 'Q', from_uv(U4 - 1, v), from_uv(U4 - 12, v), on=2.5, off=1.5)
-        fold_line(page_q, 'Q', from_uv(U3 + 1, v), from_uv(U3 + 12, v), on=2.5, off=1.5)
-    fold_line(page_q, 'Q', from_uv(U4, 201), from_uv(U4 - 9, 210), on=2.0, off=1.2)
-    fold_line(page_q, 'Q', from_uv(U3, 201), from_uv(U3 + 9, 210), on=2.0, off=1.2)
-    corner_mark(page_p, 'P')
-    corner_mark(page_q, 'Q')
+        fold_line(page_q, 'Q', from_uv(U4 - 1, v), from_uv(U4 - 12, v), on=2.5, off=1.5, g=g)
+        fold_line(page_q, 'Q', from_uv(U3 + 1, v), from_uv(U3 + 12, v), on=2.5, off=1.5, g=g)
+    fold_line(page_q, 'Q', from_uv(U4, 201), from_uv(U4 - 9, 210), on=2.0, off=1.2, g=g)
+    fold_line(page_q, 'Q', from_uv(U3, 201), from_uv(U3 + 9, 210), on=2.0, off=1.2, g=g)
+    corner_mark(page_p, g)
 
 
-def build_pages(art):
-    pw, ph = int(round(W * PX)), int(round(L * PX))
-    gx, gt = np.meshgrid((np.arange(pw) + 0.5) / PX, (np.arange(ph) + 0.5) / PX)
+def build_pages(art, dpi=DPI, bleed=0.0):
+    """dpi は印刷面の解像度、bleed は塗り足し（mm）。札・QR は dpi に関係なく 600 dpi で作ってから引く"""
+    g = Grid(dpi, bleed)
+    pw, ph = g.w, g.h
+    gx, gt = np.meshgrid((np.arange(pw) + 0.5) / g.px - bleed, (np.arange(ph) + 0.5) / g.px - bleed)
     y = L - gt
     hexa, flat, scroll, front = sampler(art['hexagon']), sampler(art['flat']), sampler(art['scroll']), sampler(with_seal(art['front']))
     back = sampler(art.get('back') or make_back())
@@ -357,14 +378,16 @@ def build_pages(art):
     is_front = cell & (v < V5)
     is_back = cell & (v >= V5) & (v < V6)
     is_tongue = cell & (v >= V6)
-    page_q = np.array(washi(pw, ph, 31), dtype=np.float32)
+    paper = washi(A4.w, A4.h, 31)  # 紙の地は A4・300 dpi で作り、別の格子では引き伸ばして同じ模様にする
+    page_q = (np.array(paper, dtype=np.float32) if (pw, ph) == paper.size
+              else sampler(paper)(gx / W, gt / L))
     page_q[corner] = hexa(hx / W, (L - hy) / L)[corner]
     page_q[wing_l | wing_r] = scroll_col[wing_l | wing_r]
     page_q[is_front] = front((u - U4) / CELL, (V5 - v) / CELL)[is_front]
     page_q[is_back] = back(1 - (u - U4) / CELL, (v - V5) / CELL)[is_back]
     # 舌は V6 で折り上げてふたの下へ入る。ふたを持ち上げた向きで正立するよう、先端を上にする
     page_q[is_tongue] = tongue((u - U4) / CELL, (210 - v) / TONGUE_H)[is_tongue]
-    add_guides(page_p, page_q)
+    add_guides(page_p, page_q, g)
     return (Image.fromarray(np.clip(page_p, 0, 255).astype(np.uint8)),
             Image.fromarray(np.clip(page_q, 0, 255).astype(np.uint8)))
 

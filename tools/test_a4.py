@@ -12,9 +12,10 @@ import zxingcpp
 from PIL import Image, ImageDraw
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from a4fold import CELL, U4, V6, state_closed, state_hexagon, area
+from a4fold import CELL, L, U4, V6, W, state_closed, state_hexagon, area
 from a4fold_view import render, state_flap_open
-from build_a4 import (CONF, QR_CARD, RATIO, TONGUE_H, TONGUE_QR, WASHI, X_QR, build_pages, fit, make_back,
+from build_a4 import (A4, CONF, CORNER_MM, QR_CARD, RATIO, RED, TONGUE_H, TONGUE_QR, WASHI, X_QR, Grid, build_pages,
+                      corner_mark, fit, make_back,
                       make_card, make_tongue, pumpkin_icon, qr_alone, seal_icon, textures, x_emblem)
 from print_design import FONTS, PAPER, QUIET, draw_text, emblem_knock, font, qr_alpha, qr_matrix, qr_side
 
@@ -113,6 +114,37 @@ class PrintTests(unittest.TestCase):
         self.assertGreater(at(CELL * 0.25, tip_v + TONGUE_H * 0.25)[0], 200)
         self.assertGreater(at(CELL * 0.75, tip_v + TONGUE_H * 0.25)[2], 200)
         self.assertGreater(at(CELL * 0.25, tip_v + TONGUE_H * 0.75)[2], 200)
+
+    def test_corner_mark_only_inside_top_right_flush(self):
+        """赤い角印は X の QR がある内側の右上だけ。紙の角に隙間なく、塗り足しがあれば外まで延びる"""
+        red = np.array(RED, np.float32)
+        page = np.zeros((A4.h, A4.w, 3), np.float32)
+        corner_mark(page)
+        leg = int(CORNER_MM * A4.px)
+        self.assertTrue(np.allclose(page[0, -1], red) and np.allclose(page[0, -leg + 8], red) and np.allclose(page[leg - 8, -1], red))
+        self.assertTrue(np.all(page[leg + 8, -1] == 0) and np.all(page[0, -leg - 8] == 0) and np.all(page[:, :A4.w // 2] == 0))
+        g = Grid(350, 3.0)
+        bled = np.zeros((g.h, g.w, 3), np.float32)
+        corner_mark(bled, g)
+        trim_x, trim_y = int((W + 3.0) * g.px) - 1, int(3.0 * g.px) + 1
+        self.assertTrue(np.allclose(bled[0, -1], red) and np.allclose(bled[trim_y, trim_x], red))
+        page_p, page_q = (np.asarray(p) for p in build_pages(load_art()))
+        self.assertTrue(np.allclose(page_p[0, -1], red) and np.allclose(page_p[3, -3], red))
+        self.assertFalse(np.allclose(page_p[0, 0], red))
+        for corner in (page_q[0, 0], page_q[0, -1], page_q[int(10 * A4.px), int(10 * A4.px)], page_q[int(10 * A4.px), -int(10 * A4.px)]):
+            self.assertGreater(np.abs(corner.astype(np.float32) - red).sum(), 40)
+
+    def test_bleed_page_matches_a4_inside_trim(self):
+        """塗り足し付きの面を仕上がりで切って縮めると、A4 の面と同じ絵になる（配置がずれない）"""
+        art = load_art()
+        a4 = [np.asarray(p, np.float32) for p in build_pages(art)]
+        g = Grid(350, 3.0)
+        bled = [np.asarray(p) for p in build_pages(art, dpi=350, bleed=3.0)]
+        x0 = y0 = int(round(3.0 * g.px))
+        for small, big in zip(a4, bled):
+            cut = big[y0:y0 + int(round(L * g.px)), x0:x0 + int(round(W * g.px))]
+            cut = cv2.resize(cut, (A4.w, A4.h), interpolation=cv2.INTER_AREA).astype(np.float32)
+            self.assertLess(np.abs(cut - small).mean(), 3.0)
 
     def test_user_art_not_cropped(self):
         for name in RATIO:
